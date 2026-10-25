@@ -357,120 +357,221 @@ function createTerrainGrassTexture(
   spec: TrackSpec,
   maxAnisotropy: number,
 ): THREE.CanvasTexture {
+  const isCountryside = spec.envKind === 'countryside';
   const canvas = document.createElement('canvas');
-  canvas.width = 1024;
-  canvas.height = 1024;
+  canvas.width = isCountryside ? 2048 : 1024;
+  canvas.height = isCountryside ? 2048 : 1024;
   const ctx = canvas.getContext('2d');
+
   if (ctx) {
     const isDesert = spec.envKind === 'desert';
     const isAlpine = spec.envKind === 'alpine';
     const isNight = spec.id === 'neon_night';
     const isHarbor = spec.id === 'harbor_docks';
     const isCoastal = spec.envKind === 'coastal';
-    const isCountryside = spec.envKind === 'countryside';
 
-    const baseHex = isDesert
-      ? '#d97706' // Natural warm golden desert sand
-      : isAlpine
-        ? '#1d4d32' // Alpine mountain evergreen turf
-        : isNight
-          ? '#0f172a' // Clean dark city plaza asphalt
-          : isHarbor
-            ? '#1e293b' // Dark industrial dock concrete
-            : isCoastal
-              ? '#15803d' // Lush coastal turf
-              : isCountryside
-                ? '#15803d' // Lush emerald countryside meadow
-                : '#15803d';
-    ctx.fillStyle = baseHex;
-    ctx.fillRect(0, 0, 1024, 1024);
+    if (isCountryside) {
+      // Authentic Southeast Asian Tropical Terraced Rice Paddy Landscape (High Resolution 2048x2048)
+      // 1. Deep moist fertile tropical agricultural loam soil base
+      ctx.fillStyle = '#1e160e';
+      ctx.fillRect(0, 0, 2048, 2048);
 
-    // Organic terrain mottling patches tailored per biome
-    for (let i = 0; i < 240; i++) {
-      const px = hash01(i * 5.1) * 1024;
-      const py = hash01(i * 9.7) * 1024;
-      const rad = 32 + hash01(i * 3.3) * 76;
-      const g = ctx.createRadialGradient(px, py, 4, px, py, rad);
-      if (isDesert) {
-        g.addColorStop(
-          0,
-          i % 2 === 0 ? 'rgba(180, 83, 9, 0.35)' : 'rgba(253, 230, 138, 0.35)',
-        );
-      } else if (isNight) {
-        g.addColorStop(
-          0,
-          i % 2 === 0
-            ? 'rgba(30, 41, 59, 0.35)'
-            : 'rgba(15, 23, 42, 0.45)',
-        );
-      } else if (isHarbor) {
-        g.addColorStop(
-          0,
-          i % 2 === 0
-            ? 'rgba(51, 65, 85, 0.35)'
-            : 'rgba(15, 23, 42, 0.45)',
-        );
-      } else if (isCoastal) {
-        g.addColorStop(
-          0,
-          i % 2 === 0
-            ? 'rgba(22, 101, 52, 0.35)'
-            : 'rgba(253, 230, 138, 0.22)',
-        );
-      } else if (isCountryside) {
-        g.addColorStop(
-          0,
-          i % 2 === 0
-            ? 'rgba(234, 179, 8, 0.35)' // Golden harvest wheat field patch
-            : 'rgba(22, 101, 52, 0.38)', // Deep meadow clover patch
-        );
-      } else {
-        g.addColorStop(
-          0,
-          i % 2 === 0 ? 'rgba(74, 222, 128, 0.18)' : 'rgba(6, 46, 22, 0.28)',
-        );
+      // 2. 6x6 Expansive Agricultural Paddy Parcels (~36m x 36m in world space with repeat 10)
+      const gridSize = 6;
+      const cellSize = 2048 / gridSize; // ~341.3px per parcel
+      const dykeWidth = 12;
+
+      for (let r = 0; r < gridSize; r++) {
+        for (let c = 0; c < gridSize; c++) {
+          const x0 = Math.floor(c * cellSize);
+          const y0 = Math.floor(r * cellSize);
+          const w0 = Math.floor((c + 1) * cellSize) - x0;
+          const h0 = Math.floor((r + 1) * cellSize) - y0;
+          const seed = hash01(r * 23.3 + c * 41.7);
+
+          // Earthen grass-crested dyke / bund border
+          ctx.fillStyle = '#382312';
+          ctx.fillRect(x0, y0, w0, h0);
+          ctx.fillStyle = '#234410';
+          ctx.fillRect(x0 + 2, y0 + 2, w0 - 4, h0 - 4);
+
+          // Interior Paddy Field Basin
+          const basinX = x0 + dykeWidth;
+          const basinY = y0 + dykeWidth;
+          const basinW = w0 - dykeWidth * 2;
+          const basinH = h0 - dykeWidth * 2;
+
+          if (seed < 0.48) {
+            // Emerald Lush Young Rice Paddy (matching vibrant green fields in reference photo)
+            const emeraldGrad = ctx.createLinearGradient(basinX, basinY, basinX + basinW, basinY + basinH);
+            emeraldGrad.addColorStop(0, '#2d6a26');
+            emeraldGrad.addColorStop(0.5, '#3b8226');
+            emeraldGrad.addColorStop(1, '#275d21');
+            ctx.fillStyle = emeraldGrad;
+            ctx.fillRect(basinX, basinY, basinW, basinH);
+
+            // Continuous parallel linear crop planting rows (fine agricultural furrows)
+            const isHorizontal = seed > 0.24;
+            if (isHorizontal) {
+              for (let py = basinY + 4; py < basinY + basinH - 4; py += 6) {
+                ctx.fillStyle = 'rgba(74, 222, 128, 0.22)';
+                ctx.fillRect(basinX + 2, py, basinW - 4, 2);
+                ctx.fillStyle = 'rgba(15, 45, 12, 0.25)';
+                ctx.fillRect(basinX + 2, py + 2, basinW - 4, 1.5);
+              }
+            } else {
+              for (let px = basinX + 4; px < basinX + basinW - 4; px += 6) {
+                ctx.fillStyle = 'rgba(74, 222, 128, 0.22)';
+                ctx.fillRect(px, basinY + 2, 2, basinH - 4);
+                ctx.fillStyle = 'rgba(15, 45, 12, 0.25)';
+                ctx.fillRect(px + 2, basinY + 2, 1.5, basinH - 4);
+              }
+            }
+          } else if (seed < 0.86) {
+            // Golden Mature Harvest Rice Field (matching golden fields in reference photo)
+            const goldGrad = ctx.createLinearGradient(basinX, basinY, basinX + basinW, basinY + basinH);
+            goldGrad.addColorStop(0, '#b47805');
+            goldGrad.addColorStop(0.5, '#ca8a04');
+            goldGrad.addColorStop(1, '#a16207');
+            ctx.fillStyle = goldGrad;
+            ctx.fillRect(basinX, basinY, basinW, basinH);
+
+            // Sunlit golden crop shimmer rows
+            const isHorizontal = seed > 0.65;
+            if (isHorizontal) {
+              for (let py = basinY + 4; py < basinY + basinH - 4; py += 5) {
+                ctx.fillStyle = 'rgba(254, 240, 138, 0.28)';
+                ctx.fillRect(basinX + 2, py, basinW - 4, 2);
+                ctx.fillStyle = 'rgba(113, 63, 18, 0.22)';
+                ctx.fillRect(basinX + 2, py + 2, basinW - 4, 1.5);
+              }
+            } else {
+              for (let px = basinX + 4; px < basinX + basinW - 4; px += 5) {
+                ctx.fillStyle = 'rgba(254, 240, 138, 0.28)';
+                ctx.fillRect(px, basinY + 2, 2, basinH - 4);
+                ctx.fillStyle = 'rgba(113, 63, 18, 0.22)';
+                ctx.fillRect(px + 2, basinY + 2, 1.5, basinH - 4);
+              }
+            }
+          } else {
+            // Flooded Terraced Water Basin (Reflecting Sky Sheen & Emerging Rice)
+            const waterGrad = ctx.createLinearGradient(basinX, basinY, basinX, basinY + basinH);
+            waterGrad.addColorStop(0, '#153822');
+            waterGrad.addColorStop(0.4, '#1c4a2d');
+            waterGrad.addColorStop(1, '#122e1b');
+            ctx.fillStyle = waterGrad;
+            ctx.fillRect(basinX, basinY, basinW, basinH);
+
+            // Sky sheen reflection
+            const skySheen = ctx.createLinearGradient(basinX, basinY, basinX + basinW, basinY);
+            skySheen.addColorStop(0, 'rgba(186, 230, 253, 0.16)');
+            skySheen.addColorStop(0.5, 'rgba(125, 211, 252, 0.26)');
+            skySheen.addColorStop(1, 'rgba(186, 230, 253, 0.14)');
+            ctx.fillStyle = skySheen;
+            ctx.fillRect(basinX, basinY, basinW, basinH);
+          }
+        }
       }
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(px, py, rad, 0, Math.PI * 2);
-      ctx.fill();
-    }
 
-    // Subtle lawn-mowing / wind-ripple stripes
-    for (let y = 0; y < 1024; y += 128) {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
-      ctx.fillRect(0, y, 1024, 64);
-    }
+      // 3. Earthen bund pathways & farmer trails
+      ctx.fillStyle = '#452b14';
+      ctx.fillRect(0, 1021, 2048, 6);
+      ctx.fillRect(1021, 0, 6, 2048);
+    } else {
+      const baseHex = isDesert
+        ? '#d97706' // Natural warm golden desert sand
+        : isAlpine
+          ? '#1d4d32' // Alpine mountain evergreen turf
+          : isNight
+            ? '#0f172a' // Clean dark city plaza asphalt
+            : isHarbor
+              ? '#1e293b' // Dark industrial dock concrete
+              : isCoastal
+                ? '#15803d' // Lush coastal turf
+                : '#15803d';
+      ctx.fillStyle = baseHex;
+      ctx.fillRect(0, 0, 1024, 1024);
 
-    // 16,000 individual grass blades / sand pebbles for razor-sharp close-up detail
-    for (let i = 0; i < 16000; i++) {
-      const gx = hash01(i * 1.73) * 1024;
-      const gy = hash01(i * 2.91) * 1024;
-      if (isDesert) {
-        ctx.fillStyle =
-          i % 3 === 0
-            ? 'rgba(253, 186, 116, 0.3)'
-            : i % 3 === 1
-              ? 'rgba(154, 52, 18, 0.36)'
-              : 'rgba(67, 20, 7, 0.26)';
-        ctx.fillRect(gx, gy, 4, 3);
-      } else {
-        const bladeLen = 6 + (i % 7);
-        const tilt = ((i % 7) - 3) * 0.65;
-        ctx.strokeStyle =
-          i % 4 === 0
-            ? 'rgba(134, 239, 172, 0.38)'
-            : i % 4 === 1
-              ? 'rgba(34, 197, 94, 0.36)'
-              : i % 4 === 2
-                ? 'rgba(21, 128, 61, 0.42)'
-                : 'rgba(5, 46, 22, 0.38)';
-        ctx.lineWidth = 1.4;
+      // Organic terrain mottling patches tailored per biome
+      for (let i = 0; i < 240; i++) {
+        const px = hash01(i * 5.1) * 1024;
+        const py = hash01(i * 9.7) * 1024;
+        const rad = 32 + hash01(i * 3.3) * 76;
+        const g = ctx.createRadialGradient(px, py, 4, px, py, rad);
+        if (isDesert) {
+          g.addColorStop(
+            0,
+            i % 2 === 0 ? 'rgba(180, 83, 9, 0.35)' : 'rgba(253, 230, 138, 0.35)',
+          );
+        } else if (isNight) {
+          g.addColorStop(
+            0,
+            i % 2 === 0
+              ? 'rgba(30, 41, 59, 0.35)'
+              : 'rgba(15, 23, 42, 0.45)',
+          );
+        } else if (isHarbor) {
+          g.addColorStop(
+            0,
+            i % 2 === 0
+              ? 'rgba(51, 65, 85, 0.35)'
+              : 'rgba(15, 23, 42, 0.45)',
+          );
+        } else if (isCoastal) {
+          g.addColorStop(
+            0,
+            i % 2 === 0
+              ? 'rgba(22, 101, 52, 0.35)'
+              : 'rgba(253, 230, 138, 0.22)',
+          );
+        } else {
+          g.addColorStop(
+            0,
+            i % 2 === 0 ? 'rgba(74, 222, 128, 0.18)' : 'rgba(6, 46, 22, 0.28)',
+          );
+        }
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.moveTo(gx, gy);
-        ctx.lineTo(gx + tilt, gy - bladeLen);
-        ctx.stroke();
+        ctx.arc(px, py, rad, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Subtle lawn-mowing / wind-ripple stripes
+      for (let y = 0; y < 1024; y += 128) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+        ctx.fillRect(0, y, 1024, 64);
+      }
+
+      // 16,000 individual grass blades / sand pebbles for razor-sharp close-up detail
+      for (let i = 0; i < 16000; i++) {
+        const gx = hash01(i * 1.73) * 1024;
+        const gy = hash01(i * 2.91) * 1024;
+        if (isDesert) {
+          ctx.fillStyle =
+            i % 3 === 0
+              ? 'rgba(253, 186, 116, 0.3)'
+              : i % 3 === 1
+                ? 'rgba(154, 52, 18, 0.36)'
+                : 'rgba(67, 20, 7, 0.26)';
+          ctx.fillRect(gx, gy, 4, 3);
+        } else {
+          const bladeLen = 6 + (i % 7);
+          const tilt = ((i % 7) - 3) * 0.65;
+          ctx.strokeStyle =
+            i % 4 === 0
+              ? 'rgba(134, 239, 172, 0.38)'
+              : i % 4 === 1
+                ? 'rgba(34, 197, 94, 0.36)'
+                : i % 4 === 2
+                  ? 'rgba(21, 128, 61, 0.42)'
+                  : 'rgba(5, 46, 22, 0.38)';
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(gx, gy);
+          ctx.lineTo(gx + tilt, gy - bladeLen);
+          ctx.stroke();
+        }
       }
     }
   }
@@ -479,7 +580,7 @@ function createTerrainGrassTexture(
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.RepeatWrapping;
-  tex.repeat.set(96, 96);
+  tex.repeat.set(isCountryside ? 10 : 96, isCountryside ? 10 : 96);
   tex.anisotropy = maxAnisotropy;
   return tex;
 }
@@ -642,6 +743,60 @@ function createMountainRockTexture(
   }
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = maxAnisotropy;
+  return tex;
+}
+
+/**
+ * Procedural Rainforest Mountain Ridge Texture (1024x1024)
+ * Natural atmospheric vertical elevation gradient: golden sunlit crests -> lush rainforest canopy -> misty emerald foothills.
+ */
+function createTropicalMountainTexture(maxAnisotropy: number): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 1024;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    // 1. Vertical Atmospheric Tropical Rainforest Elevation Gradient
+    const grad = ctx.createLinearGradient(0, 0, 0, 1024);
+    grad.addColorStop(0, '#3f6212'); // Sunlit golden-green mountain crests
+    grad.addColorStop(0.22, '#1e5a22'); // Upper lush rainforest canopy
+    grad.addColorStop(0.55, '#143d1a'); // Mid-mountain deep jungle foliage
+    grad.addColorStop(0.82, '#164e2e'); // Lower foothills
+    grad.addColorStop(1.0, '#2d5214'); // Base blending into valley rice paddies
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 1024, 1024);
+
+    // 2. Billowing Rainforest Canopy Volumes (Organic Dappling)
+    for (let i = 0; i < 450; i++) {
+      const cx = (i * 179) % 1024;
+      const cy = (i * 283) % 1024;
+      const rad = 28 + (i % 7) * 14;
+      const cGrad = ctx.createRadialGradient(cx, cy, 4, cx, cy, rad);
+      const isSunlit = cy < 380;
+      cGrad.addColorStop(
+        0,
+        isSunlit ? 'rgba(74, 222, 128, 0.22)' : 'rgba(5, 46, 22, 0.35)',
+      );
+      cGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = cGrad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 3. Soft Atmospheric Mountain Mist Belt across lower slopes
+    const mistGrad = ctx.createLinearGradient(0, 680, 0, 920);
+    mistGrad.addColorStop(0, 'rgba(220, 252, 231, 0)');
+    mistGrad.addColorStop(0.5, 'rgba(220, 252, 231, 0.28)');
+    mistGrad.addColorStop(1, 'rgba(220, 252, 231, 0)');
+    ctx.fillStyle = mistGrad;
+    ctx.fillRect(0, 680, 1024, 240);
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.ClampToEdgeWrapping;
   tex.anisotropy = maxAnisotropy;
   return tex;
 }
@@ -1411,66 +1566,83 @@ function createContainerTexture(): THREE.CanvasTexture {
   return tex;
 }
 
-function createRusticBarnTexture(): THREE.CanvasTexture {
+function createStiltHouseTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 512;
   const ctx = canvas.getContext('2d');
   if (ctx) {
-    // Rich rustic crimson red barnwood base
-    ctx.fillStyle = '#991b1b';
+    // Rich tropical dark teak / bamboo wood planks base
+    ctx.fillStyle = '#5c3d1e';
     ctx.fillRect(0, 0, 512, 512);
 
-    // Vertical barnwood planks with woodgrain & nailheads
-    for (let x = 0; x < 512; x += 16) {
-      ctx.fillStyle = (x / 16) % 2 === 0 ? 'rgba(0, 0, 0, 0.22)' : 'rgba(255, 255, 255, 0.08)';
-      ctx.fillRect(x, 0, 2, 512);
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
-      ctx.fillRect(x + 2, 0, 14, 512);
+    // Horizontal & vertical timber grain lines
+    for (let y = 0; y < 512; y += 20) {
+      ctx.fillStyle = (y / 20) % 2 === 0 ? 'rgba(30, 18, 8, 0.45)' : 'rgba(120, 75, 35, 0.25)';
+      ctx.fillRect(0, y, 512, 2);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+      ctx.fillRect(0, y + 2, 512, 18);
     }
 
-    // Classic white wooden cross-buck X-braces & eaves borders
-    ctx.fillStyle = '#f8fafc';
-    ctx.fillRect(0, 0, 512, 18);
-    ctx.fillRect(0, 494, 512, 18);
-    ctx.fillRect(0, 0, 18, 512);
-    ctx.fillRect(494, 0, 18, 512);
+    // Windows with warm glowing interior amber lantern light
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(80, 140, 95, 110);
+    ctx.fillRect(337, 140, 95, 110);
 
-    // Barn loft arched window
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(206, 60, 100, 110);
-    ctx.fillStyle = '#f8fafc';
-    ctx.fillRect(202, 56, 108, 6);
-    ctx.fillRect(253, 60, 6, 110);
-    ctx.fillRect(206, 112, 100, 6);
+    // Window timber frames & mullions
+    ctx.strokeStyle = '#2d1808';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(80, 140, 95, 110);
+    ctx.strokeRect(337, 140, 95, 110);
+    ctx.beginPath();
+    ctx.moveTo(127, 140);
+    ctx.lineTo(127, 250);
+    ctx.moveTo(80, 195);
+    ctx.lineTo(175, 195);
+    ctx.moveTo(384, 140);
+    ctx.lineTo(384, 250);
+    ctx.moveTo(337, 195);
+    ctx.lineTo(432, 195);
+    ctx.stroke();
+
+    // Bamboo woven lattice pattern under veranda
+    ctx.strokeStyle = 'rgba(217, 119, 6, 0.35)';
+    ctx.lineWidth = 2;
+    for (let d = 0; d < 512; d += 16) {
+      ctx.beginPath();
+      ctx.moveTo(d, 360);
+      ctx.lineTo(d + 80, 512);
+      ctx.moveTo(d, 512);
+      ctx.lineTo(d + 80, 360);
+      ctx.stroke();
+    }
   }
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
 }
 
-function createWindmillTexture(): THREE.CanvasTexture {
+function createThatchedRoofTexture(): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 512;
   const ctx = canvas.getContext('2d');
   if (ctx) {
-    // Weathered Cotswold stone masonry
-    ctx.fillStyle = '#e2e8f0';
+    // Dried golden palm frond & straw thatch base
+    ctx.fillStyle = '#92400e';
     ctx.fillRect(0, 0, 512, 512);
 
-    // Ashlar stone blocks & mortar lines
-    for (let y = 0; y < 512; y += 24) {
-      const row = Math.floor(y / 24);
-      const xOffset = (row % 2) * 24;
-      ctx.fillStyle = 'rgba(71, 85, 105, 0.35)';
-      ctx.fillRect(0, y, 512, 2);
-      for (let x = xOffset; x < 512; x += 48) {
-        ctx.fillRect(x, y, 2, 24);
-        if ((x + y) % 5 === 0) {
-          ctx.fillStyle = 'rgba(100, 116, 139, 0.15)';
-          ctx.fillRect(x + 2, y + 2, 44, 20);
-        }
+    // Layered horizontal straw thatch rows with ragged reed fringe
+    for (let y = 0; y < 512; y += 18) {
+      ctx.fillStyle = (y / 18) % 2 === 0 ? '#b45309' : '#78350f';
+      ctx.fillRect(0, y, 512, 16);
+      ctx.fillStyle = '#d97706';
+      ctx.fillRect(0, y + 14, 512, 4);
+
+      // Vertical reed fiber lines
+      for (let x = 0; x < 512; x += 8) {
+        ctx.fillStyle = ((x + y) % 3 === 0) ? 'rgba(253, 230, 138, 0.35)' : 'rgba(0, 0, 0, 0.28)';
+        ctx.fillRect(x, y, 2, 18);
       }
     }
   }
@@ -1479,175 +1651,477 @@ function createWindmillTexture(): THREE.CanvasTexture {
   return tex;
 }
 
-function createHayBaleTexture(): THREE.CanvasTexture {
+function createCountrysideRoadTexture(maxAnisotropy: number): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
-  canvas.width = 256;
+  canvas.width = 2048;
+  canvas.height = 2048;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    // 1. Realistic dark sun-baked rural highway asphalt base
+    ctx.fillStyle = '#262930';
+    ctx.fillRect(0, 0, 2048, 2048);
+
+    // 2. Subtle darker tire track lanes (worn aggregate sheen)
+    const leftGroove = ctx.createLinearGradient(320, 0, 780, 0);
+    leftGroove.addColorStop(0, 'rgba(0,0,0,0)');
+    leftGroove.addColorStop(0.5, 'rgba(12,16,22,0.42)');
+    leftGroove.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = leftGroove;
+    ctx.fillRect(320, 0, 460, 2048);
+
+    const rightGroove = ctx.createLinearGradient(1268, 0, 1728, 0);
+    rightGroove.addColorStop(0, 'rgba(0,0,0,0)');
+    rightGroove.addColorStop(0.5, 'rgba(12,16,22,0.42)');
+    rightGroove.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = rightGroove;
+    ctx.fillRect(1268, 0, 460, 2048);
+
+    // 3. 32,000 fine stone aggregate chips & tarmac specks
+    for (let i = 0; i < 32000; i++) {
+      const gx = (i * 269) % 2048;
+      const gy = (i * 593) % 2048;
+      const chipSize = (i % 6 === 0) ? 4 : (i % 2 === 0) ? 3 : 2;
+      ctx.fillStyle =
+        i % 7 === 0
+          ? 'rgba(255,255,255,0.12)'
+          : i % 3 === 0
+            ? 'rgba(180,195,210,0.08)'
+            : 'rgba(0,0,0,0.38)';
+      ctx.fillRect(gx, gy, chipSize, chipSize);
+    }
+
+    // 4. Natural Earthen Dirt & Crushed River Gravel Road Shoulders (NO racetrack rumble curbs!)
+    ctx.fillStyle = '#57412b';
+    ctx.fillRect(0, 0, 120, 2048);
+    ctx.fillRect(1928, 0, 120, 2048);
+    // Gravel texture stippling along shoulders
+    for (let i = 0; i < 3500; i++) {
+      const sxL = hash01(i * 3.1) * 115;
+      const sxR = 1930 + hash01(i * 4.3) * 115;
+      const sy = hash01(i * 7.7) * 2048;
+      ctx.fillStyle = i % 2 === 0 ? 'rgba(217, 119, 6, 0.45)' : 'rgba(30, 20, 10, 0.6)';
+      ctx.fillRect(sxL, sy, 3, 3);
+      ctx.fillRect(sxR, sy, 3, 3);
+    }
+
+    // 5. Crisp Solid White Outer Road Shoulder Lines (matching user's reference photo)
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(120, 0, 36, 2048);
+    ctx.fillRect(1892, 0, 36, 2048);
+
+    // 6. Single Solid Vibrant Golden-Yellow Center Highway Line (matching user's reference photo)
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(1006, 0, 36, 2048);
+
+    // Subtle yellow glass reflective center road studs
+    for (let y = 32; y < 2048; y += 128) {
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(1018, y, 12, 28);
+    }
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.anisotropy = maxAnisotropy;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function createRoadsideMarkerPostTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 128;
   canvas.height = 256;
   const ctx = canvas.getContext('2d');
   if (ctx) {
-    // Rich golden harvest straw base
-    ctx.fillStyle = '#eab308';
-    ctx.fillRect(0, 0, 256, 256);
+    // White concrete base
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 0, 128, 256);
 
-    // Concentric straw bale wrapping rings & twine ties
-    ctx.strokeStyle = '#ca8a04';
-    ctx.lineWidth = 3;
-    for (let r = 16; r < 128; r += 14) {
-      ctx.beginPath();
-      ctx.arc(128, 128, r, 0, Math.PI * 2);
-      ctx.stroke();
+    // Subtle fine aggregate concrete stippling
+    for (let i = 0; i < 400; i++) {
+      const x = (i * 37) % 128;
+      const y = (i * 73) % 256;
+      ctx.fillStyle = i % 2 === 0 ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.15)';
+      ctx.fillRect(x, y, 2, 2);
     }
-    // Cross twine strings
-    ctx.strokeStyle = '#713f12';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(0, 128);
-    ctx.lineTo(256, 128);
-    ctx.moveTo(128, 0);
-    ctx.lineTo(128, 256);
-    ctx.stroke();
+
+    // Red reflector top cap (matching Asian rural highway guide bollards)
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(0, 0, 128, 72);
+    // Red reflector glossy glass sheen
+    ctx.fillStyle = 'rgba(254, 202, 202, 0.45)';
+    ctx.fillRect(0, 12, 128, 16);
+
+    // Bold Black contrast band in middle body
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 130, 128, 64);
   }
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
 }
 
-function buildRusticRedBarnGeometry(): THREE.BufferGeometry {
-  const body = new THREE.BoxGeometry(14, 8, 22);
-  body.translate(0, 4, 0);
+function buildElevatedStiltHouseGeometry(): THREE.BufferGeometry {
+  const parts: THREE.BufferGeometry[] = [];
 
-  const lowerRoofL = new THREE.BoxGeometry(1.2, 5.2, 23.2);
-  lowerRoofL.rotateZ(Math.PI * 0.32);
-  lowerRoofL.translate(-5.8, 9.8, 0);
-  const lowerRoofR = new THREE.BoxGeometry(1.2, 5.2, 23.2);
-  lowerRoofR.rotateZ(-Math.PI * 0.32);
-  lowerRoofR.translate(5.8, 9.8, 0);
-
-  const upperRoofL = new THREE.BoxGeometry(1.0, 4.8, 23.2);
-  upperRoofL.rotateZ(Math.PI * 0.14);
-  upperRoofL.translate(-2.2, 12.6, 0);
-  const upperRoofR = new THREE.BoxGeometry(1.0, 4.8, 23.2);
-  upperRoofR.rotateZ(-Math.PI * 0.14);
-  upperRoofR.translate(2.2, 12.6, 0);
-
-  const frontGable = new THREE.CylinderGeometry(0.01, 7.0, 5.5, 4);
-  frontGable.rotateY(Math.PI * 0.25);
-  frontGable.translate(0, 10.5, 11);
-  const backGable = new THREE.CylinderGeometry(0.01, 7.0, 5.5, 4);
-  backGable.rotateY(Math.PI * 0.25);
-  backGable.translate(0, 10.5, -11);
-
-  const siloTower = new THREE.CylinderGeometry(3.2, 3.2, 15, 20);
-  siloTower.translate(10.5, 7.5, 4);
-  const siloDome = new THREE.SphereGeometry(3.2, 20, 10, 0, Math.PI * 2, 0, Math.PI * 0.5);
-  siloDome.translate(10.5, 15, 4);
-
-  const doorFrame = new THREE.BoxGeometry(4.8, 5.2, 0.4);
-  doorFrame.translate(0, 2.6, 11.2);
-
-  const merged = BufferGeometryUtils.mergeGeometries([
-    body.toNonIndexed(),
-    lowerRoofL.toNonIndexed(),
-    lowerRoofR.toNonIndexed(),
-    upperRoofL.toNonIndexed(),
-    upperRoofR.toNonIndexed(),
-    frontGable.toNonIndexed(),
-    backGable.toNonIndexed(),
-    siloTower.toNonIndexed(),
-    siloDome.toNonIndexed(),
-    doorFrame.toNonIndexed(),
-  ], false);
-  merged.computeVertexNormals();
-  merged.computeBoundingSphere();
-  return merged;
-}
-
-function buildDutchWindmillGeometry(): THREE.BufferGeometry {
-  const tower = new THREE.CylinderGeometry(3.2, 4.8, 16, 8);
-  tower.translate(0, 8, 0);
-
-  const cap = new THREE.ConeGeometry(3.8, 4.2, 8);
-  cap.translate(0, 18.1, 0);
-
-  const hub = new THREE.CylinderGeometry(0.7, 0.8, 1.6, 10);
-  hub.rotateX(Math.PI * 0.5);
-  hub.translate(0, 17.5, 3.2);
-
-  const sailGeos: THREE.BufferGeometry[] = [];
-  for (let i = 0; i < 4; i++) {
-    const angle = (i * Math.PI) / 2;
-    const spar = new THREE.BoxGeometry(0.32, 12, 0.32);
-    spar.translate(0, 6, 0);
-    const canvasBlade = new THREE.BoxGeometry(2.2, 9.5, 0.08);
-    canvasBlade.rotateY(0.2);
-    canvasBlade.translate(1.2, 6.5, 0);
-    const fullSail = BufferGeometryUtils.mergeGeometries([
-      spar.toNonIndexed(),
-      canvasBlade.toNonIndexed()
-    ], false);
-    fullSail.rotateZ(angle);
-    fullSail.translate(0, 17.5, 3.5);
-    sailGeos.push(fullSail);
+  // 1. Ten Foundation Stilts (Raising house 2.2m above ground, matching reference photo)
+  const stiltPositions = [
+    [-3.8, -3.4], [-1.3, -3.4], [1.3, -3.4], [3.8, -3.4],
+    [-3.8, 0.0],  [-1.3, 0.0],  [1.3, 0.0],  [3.8, 0.0],
+    [-3.8, 3.4],  [3.8, 3.4],
+  ];
+  for (const [sx, sz] of stiltPositions) {
+    // Round timber post
+    const stilt = new THREE.CylinderGeometry(0.18, 0.20, 2.3, 8);
+    stilt.translate(sx, 1.15, sz);
+    // Stone pillar footing at base
+    const baseStone = new THREE.CylinderGeometry(0.28, 0.32, 0.3, 8);
+    baseStone.translate(sx, 0.15, sz);
+    parts.push(stilt, baseStone);
   }
 
-  const merged = BufferGeometryUtils.mergeGeometries([
-    tower.toNonIndexed(),
-    cap.toNonIndexed(),
-    hub.toNonIndexed(),
-    ...sailGeos.map(s => s.toNonIndexed()),
-  ], false);
+  // 2. Under-Floor Heavy Timber Girders
+  const girderL = new THREE.BoxGeometry(0.25, 0.35, 7.8);
+  girderL.translate(-3.8, 2.2, 0);
+  const girderR = new THREE.BoxGeometry(0.25, 0.35, 7.8);
+  girderR.translate(3.8, 2.2, 0);
+  const girderM = new THREE.BoxGeometry(7.8, 0.3, 0.25);
+  girderM.translate(0, 2.15, 0);
+  parts.push(girderL, girderR, girderM);
+
+  // 3. Wooden Floor Deck & Covered Veranda
+  const floorDeck = new THREE.BoxGeometry(8.6, 0.24, 8.2);
+  floorDeck.translate(0, 2.4, 0.3);
+  parts.push(floorDeck);
+
+  // 4. Veranda Front Railing & Posts
+  const railFront = new THREE.BoxGeometry(8.2, 0.12, 0.12);
+  railFront.translate(0, 3.3, 4.3);
+  const railSideL = new THREE.BoxGeometry(0.12, 0.12, 2.6);
+  railSideL.translate(-4.1, 3.3, 3.0);
+  const railSideR = new THREE.BoxGeometry(0.12, 0.12, 2.6);
+  railSideR.translate(4.1, 3.3, 3.0);
+  parts.push(railFront, railSideL, railSideR);
+
+  // Veranda Baluster Spindles
+  for (let bx = -3.8; bx <= 3.8; bx += 0.5) {
+    if (Math.abs(bx - 2.6) < 0.8) continue; // stair opening
+    const baluster = new THREE.BoxGeometry(0.06, 0.8, 0.06);
+    baluster.translate(bx, 2.85, 4.3);
+    parts.push(baluster);
+  }
+
+  // Veranda Roof Support Posts
+  const postL = new THREE.CylinderGeometry(0.14, 0.14, 2.8, 8);
+  postL.translate(-4.0, 3.8, 4.3);
+  const postR = new THREE.CylinderGeometry(0.14, 0.14, 2.8, 8);
+  postR.translate(4.0, 3.8, 4.3);
+  parts.push(postL, postR);
+
+  // 5. Access Ladder / Stairs (from ground up to veranda)
+  const stringerL = new THREE.BoxGeometry(0.12, 3.5, 0.12);
+  stringerL.rotateX(Math.PI * 0.22);
+  stringerL.translate(2.1, 1.25, 5.5);
+  const stringerR = new THREE.BoxGeometry(0.12, 3.5, 0.12);
+  stringerR.rotateX(Math.PI * 0.22);
+  stringerR.translate(3.1, 1.25, 5.5);
+  parts.push(stringerL, stringerR);
+
+  for (let r = 0; r < 5; r++) {
+    const rung = new THREE.BoxGeometry(0.9, 0.08, 0.22);
+    const y = 0.45 + r * 0.42;
+    const z = 6.6 - r * 0.46;
+    rung.translate(2.6, y, z);
+    parts.push(rung);
+  }
+
+  // 6. Main House Walls (Teak / Bamboo planks)
+  const walls = new THREE.BoxGeometry(7.8, 3.2, 5.6);
+  walls.translate(0, 4.0, -1.0);
+  parts.push(walls);
+
+  // 7. Gable Attic Walls (Triangular Pediments on Front & Back)
+  const gableFront = new THREE.BoxGeometry(7.8, 2.8, 0.15);
+  gableFront.translate(0, 6.8, 1.7);
+  const gableBack = new THREE.BoxGeometry(7.8, 2.8, 0.15);
+  gableBack.translate(0, 6.8, -3.7);
+  parts.push(gableFront, gableBack);
+
+  // 8. Steep Pitched Thatched Gabled Roof with Wide Overhanging Eaves
+  // Ridge at x = 0, y = 8.55m, z = 0.3m. Eaves at x = +-5.2m, y = 5.2m.
+  const roofDepth = 9.8; // extends over both front veranda and back
+  const slopeWidth = Math.hypot(5.2, 3.35); // ~6.18m
+  const pitchAngle = Math.atan2(3.35, 5.2); // ~0.572 rad
+
+  // Left slope slab
+  const roofL = new THREE.BoxGeometry(slopeWidth, 0.18, roofDepth);
+  roofL.rotateZ(pitchAngle);
+  roofL.translate(-2.6, 6.85, 0.3);
+
+  // Right slope slab
+  const roofR = new THREE.BoxGeometry(slopeWidth, 0.18, roofDepth);
+  roofR.rotateZ(-pitchAngle);
+  roofR.translate(2.6, 6.85, 0.3);
+
+  // Gable Peak Ridge Cap Beam
+  const roofRidge = new THREE.BoxGeometry(0.35, 0.35, roofDepth + 0.3);
+  roofRidge.translate(0, 8.55, 0.3);
+  parts.push(roofL, roofR, roofRidge);
+
+  const merged = BufferGeometryUtils.mergeGeometries(
+    parts.map((p) => p.toNonIndexed()),
+    false,
+  );
   merged.computeVertexNormals();
   merged.computeBoundingSphere();
   return merged;
 }
 
-function buildCountryCottageGeometry(): THREE.BufferGeometry {
-  const body = new THREE.BoxGeometry(10, 5.5, 12);
-  body.translate(0, 2.75, 0);
-
-  const roofL = new THREE.BoxGeometry(0.8, 5.8, 13.2);
-  roofL.rotateZ(Math.PI * 0.24);
-  roofL.translate(-3.6, 7.2, 0);
-  const roofR = new THREE.BoxGeometry(0.8, 5.8, 13.2);
-  roofR.rotateZ(-Math.PI * 0.24);
-  roofR.translate(3.6, 7.2, 0);
-
-  const chimney = new THREE.BoxGeometry(1.4, 4.2, 1.4);
-  chimney.translate(3.2, 8.5, 3.5);
-
-  const porch = new THREE.BoxGeometry(4.2, 0.4, 2.2);
-  porch.translate(0, 3.2, 6.8);
-
-  const merged = BufferGeometryUtils.mergeGeometries([
-    body.toNonIndexed(),
-    roofL.toNonIndexed(),
-    roofR.toNonIndexed(),
-    chimney.toNonIndexed(),
-    porch.toNonIndexed(),
-  ], false);
+function buildStiltHouseWindowsGeometry(): THREE.BufferGeometry {
+  const parts: THREE.BufferGeometry[] = [];
+  // Front glowing veranda window
+  const winFront = new THREE.BoxGeometry(1.0, 1.0, 0.08);
+  winFront.translate(-1.8, 4.2, 1.82);
+  // Left side glowing window
+  const winSideL = new THREE.BoxGeometry(0.08, 1.0, 1.0);
+  winSideL.translate(-3.92, 4.2, -1.0);
+  // Right side glowing window
+  const winSideR = new THREE.BoxGeometry(0.08, 1.0, 1.0);
+  winSideR.translate(3.92, 4.2, -1.0);
+  parts.push(winFront, winSideL, winSideR);
+  const merged = BufferGeometryUtils.mergeGeometries(
+    parts.map((p) => p.toNonIndexed()),
+    false,
+  );
   merged.computeVertexNormals();
   merged.computeBoundingSphere();
   return merged;
 }
 
-function buildHayBaleGroupGeometry(): THREE.BufferGeometry {
-  const bale1 = new THREE.CylinderGeometry(1.1, 1.1, 2.4, 14);
-  bale1.rotateZ(Math.PI * 0.5);
-  bale1.translate(-1.4, 1.1, 0);
+function buildOpenThatchedShedGeometry(): THREE.BufferGeometry {
+  const parts: THREE.BufferGeometry[] = [];
 
-  const bale2 = new THREE.CylinderGeometry(1.1, 1.1, 2.4, 14);
-  bale2.rotateZ(Math.PI * 0.5);
-  bale2.translate(1.4, 1.1, 0.3);
+  // 4 Wooden Corner Posts
+  const postCoords = [
+    [-2.2, -1.8], [2.2, -1.8],
+    [-2.2, 1.8], [2.2, 1.8],
+  ];
+  for (const [px, pz] of postCoords) {
+    const post = new THREE.CylinderGeometry(0.14, 0.16, 3.2, 8);
+    post.translate(px, 1.6, pz);
+    parts.push(post);
+  }
 
-  const bale3 = new THREE.CylinderGeometry(1.05, 1.05, 2.4, 14);
-  bale3.rotateZ(Math.PI * 0.5);
-  bale3.translate(0, 2.9, 0.15);
+  // Cross beams
+  const beamL = new THREE.BoxGeometry(0.18, 0.22, 4.2);
+  beamL.translate(-2.2, 3.1, 0);
+  const beamR = new THREE.BoxGeometry(0.18, 0.22, 4.2);
+  beamR.translate(2.2, 3.1, 0);
+  parts.push(beamL, beamR);
 
-  const merged = BufferGeometryUtils.mergeGeometries([
-    bale1.toNonIndexed(),
-    bale2.toNonIndexed(),
-    bale3.toNonIndexed(),
-  ], false);
+  // Thatched Gabled Roof (cleanly meeting at ridge)
+  const roofDepth = 5.2;
+  const slopeWidth = Math.hypot(2.8, 1.6); // ~3.22m
+  const pitchAngle = Math.atan2(1.6, 2.8);
+
+  const roofL = new THREE.BoxGeometry(slopeWidth, 0.14, roofDepth);
+  roofL.rotateZ(pitchAngle);
+  roofL.translate(-1.4, 3.9, 0);
+
+  const roofR = new THREE.BoxGeometry(slopeWidth, 0.14, roofDepth);
+  roofR.rotateZ(-pitchAngle);
+  roofR.translate(1.4, 3.9, 0);
+
+  const ridgeCap = new THREE.BoxGeometry(0.22, 0.22, roofDepth + 0.2);
+  ridgeCap.translate(0, 4.75, 0);
+  parts.push(roofL, roofR, ridgeCap);
+
+  // Conical Rice Straw Haystack
+  const haystack = new THREE.ConeGeometry(2.0, 3.2, 16);
+  haystack.translate(4.8, 1.6, 0.4);
+  parts.push(haystack);
+
+  const merged = BufferGeometryUtils.mergeGeometries(
+    parts.map((p) => p.toNonIndexed()),
+    false,
+  );
+  merged.computeVertexNormals();
+  merged.computeBoundingSphere();
+  return merged;
+}
+
+function buildRiversideWoodenBridgeGeometry(): THREE.BufferGeometry {
+  const parts: THREE.BufferGeometry[] = [];
+
+  // Deck Planking (22m long, 2.5m wide, gently arched over water at natural height)
+  const deck = new THREE.BoxGeometry(22, 0.22, 2.5);
+  deck.translate(0, 0.72, 0);
+  parts.push(deck);
+
+  // Parapets / Handrails (matching rustic wooden footbridge in reference photo)
+  const railL = new THREE.BoxGeometry(22, 0.14, 0.12);
+  railL.translate(0, 1.55, -1.15);
+  const railR = new THREE.BoxGeometry(22, 0.14, 0.12);
+  railR.translate(0, 1.55, 1.15);
+  parts.push(railL, railR);
+
+  // Vertical Baluster Posts along rails
+  for (let x = -10; x <= 10; x += 2.0) {
+    const pL = new THREE.BoxGeometry(0.1, 0.85, 0.1);
+    pL.translate(x, 1.15, -1.15);
+    const pR = new THREE.BoxGeometry(0.1, 0.85, 0.1);
+    pR.translate(x, 1.15, 1.15);
+    parts.push(pL, pR);
+  }
+
+  // Cross-braced Timber Trestle Pier Bents in the riverbed
+  for (const px of [-6.5, 0, 6.5]) {
+    const pierL = new THREE.CylinderGeometry(0.18, 0.22, 1.6, 8);
+    pierL.translate(px, 0.1, -1.0);
+    const pierR = new THREE.CylinderGeometry(0.18, 0.22, 1.6, 8);
+    pierR.translate(px, 0.1, 1.0);
+    const crossBeam = new THREE.BoxGeometry(0.24, 0.26, 2.6);
+    crossBeam.translate(px, 0.58, 0);
+    // Diagonal cross brace
+    const diag = new THREE.BoxGeometry(0.1, 1.4, 0.1);
+    diag.rotateX(Math.PI * 0.25);
+    diag.translate(px, 0.25, 0);
+    parts.push(pierL, pierR, crossBeam, diag);
+  }
+
+  const merged = BufferGeometryUtils.mergeGeometries(
+    parts.map((p) => p.toNonIndexed()),
+    false,
+  );
+  merged.computeVertexNormals();
+  merged.computeBoundingSphere();
+  return merged;
+}
+
+function buildFarmTractorGeometry(): THREE.BufferGeometry {
+  const parts: THREE.BufferGeometry[] = [];
+
+  // Blue Engine Hood & Chassis
+  const hood = new THREE.BoxGeometry(1.4, 1.1, 2.6);
+  hood.translate(0, 1.2, 0.6);
+  const cabFloor = new THREE.BoxGeometry(1.6, 0.3, 1.6);
+  cabFloor.translate(0, 0.95, -1.0);
+  parts.push(hood, cabFloor);
+
+  // Safety Rollbar Cage
+  const rollL = new THREE.CylinderGeometry(0.06, 0.06, 2.1, 6);
+  rollL.translate(-0.7, 2.0, -1.1);
+  const rollR = new THREE.CylinderGeometry(0.06, 0.06, 2.1, 6);
+  rollR.translate(0.7, 2.0, -1.1);
+  const rollTop = new THREE.BoxGeometry(1.5, 0.12, 0.12);
+  rollTop.translate(0, 3.0, -1.1);
+  parts.push(rollL, rollR, rollTop);
+
+  // Large Rear Agricultural Wheels
+  const wheelRL = new THREE.CylinderGeometry(1.1, 1.1, 0.6, 14);
+  wheelRL.rotateZ(Math.PI * 0.5);
+  wheelRL.translate(-1.1, 1.1, -1.0);
+  const wheelRR = new THREE.CylinderGeometry(1.1, 1.1, 0.6, 14);
+  wheelRR.rotateZ(Math.PI * 0.5);
+  wheelRR.translate(1.1, 1.1, -1.0);
+
+  // Smaller Front Wheels
+  const wheelFL = new THREE.CylinderGeometry(0.65, 0.65, 0.38, 12);
+  wheelFL.rotateZ(Math.PI * 0.5);
+  wheelFL.translate(-0.95, 0.65, 1.5);
+  const wheelFR = new THREE.CylinderGeometry(0.65, 0.65, 0.38, 12);
+  wheelFR.rotateZ(Math.PI * 0.5);
+  wheelFR.translate(0.95, 0.65, 1.5);
+  parts.push(wheelRL, wheelRR, wheelFL, wheelFR);
+
+  // Exhaust Stack
+  const exhaust = new THREE.CylinderGeometry(0.05, 0.06, 1.8, 8);
+  exhaust.translate(0.6, 2.3, 1.2);
+  parts.push(exhaust);
+
+  const merged = BufferGeometryUtils.mergeGeometries(
+    parts.map((p) => p.toNonIndexed()),
+    false,
+  );
+  merged.computeVertexNormals();
+  merged.computeBoundingSphere();
+  return merged;
+}
+
+function buildBananaPlantGeometry(): THREE.BufferGeometry {
+  const parts: THREE.BufferGeometry[] = [];
+  const creaseRad = THREE.MathUtils.degToRad(55);
+
+  // Central Fleshy Trunk / Pseudostem
+  const trunk = new THREE.CylinderGeometry(0.14, 0.22, 2.2, 8);
+  trunk.translate(0, 1.1, 0);
+  parts.push(trunk.toNonIndexed());
+
+  // 8 Arching Paddle-Shaped Banana Leaves
+  for (let i = 0; i < 8; i++) {
+    const angle = (i * Math.PI * 2) / 8 + 0.2;
+    const leaf = new THREE.BoxGeometry(0.85, 2.6, 0.04, 2, 6, 1);
+    const pos = leaf.attributes.position;
+    for (let p = 0; p < pos.count; p++) {
+      const y = pos.getY(p) + 1.3; // 0 to 2.6
+      const normY = y / 2.6;
+      const x = pos.getX(p);
+      const widthTaper = Math.sin(normY * Math.PI) * 1.35;
+      const archZ = normY * normY * 0.95; // Graceful droop
+      const vCrease = Math.abs(x) * 0.15; // Center crease
+      pos.setXYZ(p, x * widthTaper, y, pos.getZ(p) + archZ - vCrease);
+    }
+    leaf.rotateX(Math.PI * 0.22);
+    leaf.rotateY(angle);
+    leaf.translate(0, 1.9, 0);
+    parts.push(BufferGeometryUtils.toCreasedNormals(leaf, creaseRad).toNonIndexed());
+  }
+
+  const merged = BufferGeometryUtils.mergeGeometries(parts, false);
+  merged.computeVertexNormals();
+  merged.computeBoundingSphere();
+  return merged;
+}
+
+function buildRoadsideMarkerPostGeometry(): THREE.BufferGeometry {
+  const post = new THREE.BoxGeometry(0.24, 0.88, 0.24);
+  post.translate(0, 0.44, 0);
+  const cap = new THREE.CylinderGeometry(0.01, 0.17, 0.14, 4);
+  cap.rotateY(Math.PI * 0.25);
+  cap.translate(0, 0.95, 0);
+  const merged = BufferGeometryUtils.mergeGeometries(
+    [post.toNonIndexed(), cap.toNonIndexed()],
+    false,
+  );
+  merged.computeVertexNormals();
+  merged.computeBoundingSphere();
+  return merged;
+}
+
+function buildTelegraphPoleGeometry(): THREE.BufferGeometry {
+  const parts: THREE.BufferGeometry[] = [];
+
+  // Main Pole (9.5m tall)
+  const pole = new THREE.CylinderGeometry(0.12, 0.18, 9.5, 8);
+  pole.translate(0, 4.75, 0);
+  parts.push(pole);
+
+  // Horizontal Crossarm Beam
+  const crossarm = new THREE.BoxGeometry(2.8, 0.18, 0.18);
+  crossarm.translate(0, 8.8, 0);
+  parts.push(crossarm);
+
+  // 4 Porcelain Insulator Pegs
+  for (const px of [-1.2, -0.4, 0.4, 1.2]) {
+    const ins = new THREE.CylinderGeometry(0.06, 0.08, 0.28, 6);
+    ins.translate(px, 9.05, 0);
+    parts.push(ins);
+  }
+
+  const merged = BufferGeometryUtils.mergeGeometries(
+    parts.map((p) => p.toNonIndexed()),
+    false,
+  );
   merged.computeVertexNormals();
   merged.computeBoundingSphere();
   return merged;
@@ -1655,13 +2129,13 @@ function buildHayBaleGroupGeometry(): THREE.BufferGeometry {
 
 function buildRusticSplitRailFenceGeometry(): THREE.BufferGeometry {
   const post1 = new THREE.BoxGeometry(0.22, 1.35, 0.22);
-  post1.translate(-2.0, 0.67, 0);
+  post1.translate(0, 0.67, -2.0);
   const post2 = new THREE.BoxGeometry(0.22, 1.35, 0.22);
-  post2.translate(2.0, 0.67, 0);
+  post2.translate(0, 0.67, 2.0);
 
-  const rail1 = new THREE.BoxGeometry(4.3, 0.14, 0.12);
+  const rail1 = new THREE.BoxGeometry(0.12, 0.14, 4.3);
   rail1.translate(0, 0.52, 0);
-  const rail2 = new THREE.BoxGeometry(4.3, 0.14, 0.12);
+  const rail2 = new THREE.BoxGeometry(0.12, 0.14, 4.3);
   rail2.translate(0, 1.05, 0);
 
   const merged = BufferGeometryUtils.mergeGeometries([
@@ -1675,13 +2149,14 @@ function buildRusticSplitRailFenceGeometry(): THREE.BufferGeometry {
   return merged;
 }
 
-function buildRollingPastoralHillGeometry(
-  baseRadius = 56,
-  height = 72,
-  radialSegs = 48,
+function buildTropicalMountainRidgeGeometry(
+  baseRadius = 240,
+  height = 75,
+  radialSegs = 56,
   heightSegs = 24,
 ): THREE.BufferGeometry {
-  const geo = new THREE.ConeGeometry(baseRadius, height, radialSegs, heightSegs, false);
+  // Broad, rolling tropical mountain ridges with rounded crests & lush cascading foothills
+  const geo = new THREE.CylinderGeometry(18, baseRadius, height, radialSegs, heightSegs, false);
   geo.translate(0, height * 0.5, 0);
   const pos = geo.attributes.position;
   for (let i = 0; i < pos.count; i++) {
@@ -1690,10 +2165,24 @@ function buildRollingPastoralHillGeometry(
     const vz = pos.getZ(i);
     const elev = Math.max(0, Math.min(1, vy / height));
     const angle = Math.atan2(vz, vx);
-    const swell = 1 + Math.sin(angle * 3) * 0.14 + Math.cos(angle * 5) * 0.08;
-    pos.setXYZ(i, vx * swell, vy * (0.85 + (1 - elev) * 0.15), vz * swell);
+
+    // Natural multi-octave undulating ridges & valleys with gentle rolling crests
+    const ridgeWave =
+      Math.sin(angle * 2.5) * 0.22 +
+      Math.cos(angle * 5 + 0.9) * 0.10 +
+      Math.sin(angle * 8) * 0.04;
+    // Parabolic dome curve for soft rounded tropical mountain crests (NO sharp party-hat cones!)
+    const domeCurve = Math.pow(1 - elev, 0.85);
+    const radial = (1 + ridgeWave * 0.45) * (0.20 + 0.80 * domeCurve);
+
+    // Smooth rounded summit profile
+    const roundedHeight = vy * (0.86 + Math.sin(angle * 2) * 0.08);
+    pos.setXYZ(i, vx * radial, roundedHeight, vz * radial);
   }
-  const creased = BufferGeometryUtils.toCreasedNormals(geo, THREE.MathUtils.degToRad(58));
+  const creased = BufferGeometryUtils.toCreasedNormals(
+    geo,
+    THREE.MathUtils.degToRad(75),
+  );
   creased.computeBoundingSphere();
   return creased;
 }
@@ -1941,14 +2430,16 @@ export function buildRacingWorld(
 
   // Shared high-resolution textures & procedural geometries
   const roadTex = createRoadAsphaltTexture(maxAnisotropy);
+  const countrysideRoadTex = createCountrysideRoadTexture(maxAnisotropy);
   const facadeTex = createBuildingFacadeTexture(initialTrack, maxAnisotropy);
   const bannerTex = createCheckeredBannerTexture();
   const chevronTex = createChevronSignTexture();
   const barkTex = createBarkTexture();
   const foliageTex = createFoliageLeafTexture(maxAnisotropy);
-  const barnTex = createRusticBarnTexture();
-  const windmillTex = createWindmillTexture();
-  const hayBaleTex = createHayBaleTexture();
+  const stiltHouseTex = createStiltHouseTexture();
+  const thatchRoofTex = createThatchedRoofTexture();
+  const markerPostTex = createRoadsideMarkerPostTexture();
+  const tropicalMountainTex = createTropicalMountainTexture(maxAnisotropy);
 
   const pineTreeGeos = buildDetailedTreeGeometries('pine');
   const oakTreeGeos = buildDetailedTreeGeometries('oak');
@@ -1958,11 +2449,15 @@ export function buildRacingWorld(
   const craggyMountainGeo = buildRealisticMountainGeometry(56, 105, 48, 24);
   const craggyPeakGeo = buildRealisticMountainGeometry(0.68, 1.0, 28, 14);
   const sandstoneMesaGeo = buildTerracedSandstoneMesaGeometry(0.76, 1.0);
-  const rollingPastoralHillGeo = buildRollingPastoralHillGeometry(56, 75, 48, 24);
-  const rusticBarnGeo = buildRusticRedBarnGeometry();
-  const dutchWindmillGeo = buildDutchWindmillGeometry();
-  const countryCottageGeo = buildCountryCottageGeometry();
-  const hayBaleGroupGeo = buildHayBaleGroupGeometry();
+  const tropicalMountainRidgeGeo = buildTropicalMountainRidgeGeometry(240, 75, 56, 24);
+  const elevatedStiltHouseGeo = buildElevatedStiltHouseGeometry();
+  const stiltHouseWindowsGeo = buildStiltHouseWindowsGeometry();
+  const openThatchedShedGeo = buildOpenThatchedShedGeometry();
+  const riversideWoodenBridgeGeo = buildRiversideWoodenBridgeGeometry();
+  const farmTractorGeo = buildFarmTractorGeometry();
+  const bananaPlantGeo = buildBananaPlantGeometry();
+  const roadsideMarkerPostGeo = buildRoadsideMarkerPostGeometry();
+  const telegraphPoleGeo = buildTelegraphPoleGeometry();
   const splitRailFenceGeo = buildRusticSplitRailFenceGeometry();
 
   let trackContentGroup = new THREE.Group();
@@ -2026,31 +2521,34 @@ export function buildRacingWorld(
     groundMesh.receiveShadow = true;
     trackContentGroup.add(groundMesh);
 
-    const isWaterInfield =
-      spec.envKind === 'coastal' || spec.envKind === 'harbor';
-    const infieldMesh = new THREE.Mesh(
-      new THREE.CircleGeometry(105, 48),
-      new THREE.MeshStandardMaterial({
-        color: spec.infieldColor,
-        map: isWaterInfield ? null : grassTex,
-        roughness: isWaterInfield ? 0.14 : 0.88,
-        metalness: isWaterInfield ? 0.72 : 0.02,
-      }),
-    );
-    infieldMesh.rotation.x = -Math.PI * 0.5;
-    infieldMesh.position.set(
-      spec.envKind === 'alpine' ? -75 : 85,
-      0.012,
-      20,
-    );
-    trackContentGroup.add(infieldMesh);
+    const isCountryside = spec.envKind === 'countryside';
+    if (!isCountryside) {
+      const isWaterInfield =
+        spec.envKind === 'coastal' || spec.envKind === 'harbor';
+      const infieldMesh = new THREE.Mesh(
+        new THREE.CircleGeometry(105, 48),
+        new THREE.MeshStandardMaterial({
+          color: spec.infieldColor,
+          map: isWaterInfield ? null : grassTex,
+          roughness: isWaterInfield ? 0.14 : 0.88,
+          metalness: isWaterInfield ? 0.72 : 0.02,
+        }),
+      );
+      infieldMesh.rotation.x = -Math.PI * 0.5;
+      infieldMesh.position.set(
+        spec.envKind === 'alpine' ? -75 : 85,
+        0.012,
+        20,
+      );
+      trackContentGroup.add(infieldMesh);
+    }
 
     // 3. Road Ribbon Mesh
     const isWetRoad = spec.id === 'neon_night' || spec.id === 'harbor_docks';
     const roadMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      map: roadTex,
-      roughness: isWetRoad ? 0.38 : 0.78,
+      map: isCountryside ? countrysideRoadTex : roadTex,
+      roughness: isWetRoad ? 0.38 : isCountryside ? 0.84 : 0.78,
       metalness: isWetRoad ? 0.24 : 0.06,
     });
     const roadGeo = buildRoadRibbonGeometry(
@@ -2062,7 +2560,7 @@ export function buildRacingWorld(
     roadMesh.receiveShadow = true;
     trackContentGroup.add(roadMesh);
 
-    // 3.1. Physically Elevated 3D FIA Rumble Curbs on Corner Apexes
+    // 3.1. Physically Elevated 3D FIA Rumble Curbs on Corner Apexes (racetracks only)
     const curbHalfW = spec.roadWidth * 0.54;
     const curbBlockGeo = new THREE.BoxGeometry(0.92, 0.12, 0.72);
     curbBlockGeo.translate(0, 0.06, 0);
@@ -2070,7 +2568,6 @@ export function buildRacingWorld(
     const isPureNight = spec.id === 'neon_night';
     const isHarbor = spec.id === 'harbor_docks';
     const isDesert = spec.id === 'desert_dunes';
-    const isCountryside = spec.envKind === 'countryside';
 
     // Circuit-tailored curb color palettes
     const primaryCurbColor = isPureNight
@@ -2079,9 +2576,7 @@ export function buildRacingWorld(
         ? 0xeab308 // Industrial Hazard Yellow
         : isDesert
           ? 0xb91c1c // Sedona Red Sandstone
-          : isCountryside
-            ? 0x15803d // British Racing Green / Emerald
-            : 0xdc2626; // FIA Red
+          : 0xdc2626; // FIA Red
 
     const secondaryCurbColor = isPureNight
       ? 0xd946ef // Electric Magenta
@@ -2089,9 +2584,7 @@ export function buildRacingWorld(
         ? 0x0f172a // Charcoal Black
         : isDesert
           ? 0xfef3c7 // Warm Desert Bone
-          : isCountryside
-            ? 0xfef08a // Warm Golden Straw
-            : 0xf8fafc; // Clean White
+          : 0xf8fafc; // Clean White
 
     const curbMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
@@ -2118,8 +2611,8 @@ export function buildRacingWorld(
       const cross = wp.tx * wpNext.tz - wp.tz * wpNext.tx;
       const rotY = Math.atan2(wp.tx, wp.tz);
 
-      // On corners (sharp curve)
-      if (Math.abs(cross) > 0.024) {
+      // On corners (sharp curve) - skip curbs on rural highway
+      if (!isCountryside && Math.abs(cross) > 0.024) {
         // Inside apex curb
         const insideSign = cross > 0 ? 1 : -1;
         const colorInside = i % 2 === 0 ? primaryCurbColor : secondaryCurbColor;
@@ -2143,8 +2636,8 @@ export function buildRacingWorld(
         }
       }
 
-      // Distance countdown boards on run-in to sharp curves
-      if (Math.abs(cross) > 0.08 && i % 8 === 0) {
+      // Distance countdown boards on run-in to sharp curves (racetracks only)
+      if (!isCountryside && Math.abs(cross) > 0.08 && i % 8 === 0) {
         const outsideSign = cross > 0 ? -1 : 1;
         const wp150 = waypoints[(i - 6 + nWp) % nWp];
         const wp100 = waypoints[(i - 4 + nWp) % nWp];
@@ -2239,167 +2732,197 @@ export function buildRacingWorld(
     spawnBoardGroup(markerTransforms50, '50');
 
 
-    // 4. Start/Finish Gantry Arch + 3 Mid-Track Illuminated Racing Portals
+    // Structural metal material for gantries, guardrail posts, and streetlights
     const gantryMat = new THREE.MeshStandardMaterial({
       color: 0x334155,
       metalness: 0.78,
       roughness: 0.25,
     });
-    const portalAccentMat = new THREE.MeshStandardMaterial({
-      color: spec.archAccentColor,
-      emissive: spec.archAccentColor,
-      emissiveIntensity: 2.2,
-      roughness: 0.2,
-    });
 
-    const startWp = waypoints[2] || waypoints[0];
-    const gantryGroup = new THREE.Group();
-    gantryGroup.position.set(startWp.x, 0, startWp.z);
-    gantryGroup.rotation.y = Math.atan2(startWp.tx, startWp.tz);
+    // 4. Start/Finish Gantry Arch + 3 Mid-Track Illuminated Racing Portals (Racetrack & City circuits only)
+    if (!isCountryside) {
+      const portalAccentMat = new THREE.MeshStandardMaterial({
+        color: spec.archAccentColor,
+        emissive: spec.archAccentColor,
+        emissiveIntensity: 2.2,
+        roughness: 0.2,
+      });
 
-    const spanW = spec.roadWidth + 4.4;
-    const pillarGeo = new THREE.BoxGeometry(0.95, 8.4, 0.95);
-    const leftPillar = new THREE.Mesh(pillarGeo, gantryMat);
-    leftPillar.position.set(-spanW * 0.5, 4.2, 0);
-    const rightPillar = new THREE.Mesh(pillarGeo, gantryMat);
-    rightPillar.position.set(spanW * 0.5, 4.2, 0);
+      const startWp = waypoints[2] || waypoints[0];
+      const gantryGroup = new THREE.Group();
+      gantryGroup.position.set(startWp.x, 0, startWp.z);
+      gantryGroup.rotation.y = Math.atan2(startWp.tx, startWp.tz);
 
-    const overheadBeam = new THREE.Mesh(
-      new THREE.BoxGeometry(spanW + 1.4, 1.85, 1.15),
-      new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        map: bannerTex,
-        roughness: 0.3,
-        metalness: 0.25,
-      }),
-    );
-    overheadBeam.position.set(0, 7.65, 0);
+      const spanW = spec.roadWidth + 4.4;
+      const pillarGeo = new THREE.BoxGeometry(0.95, 8.4, 0.95);
+      const leftPillar = new THREE.Mesh(pillarGeo, gantryMat);
+      leftPillar.position.set(-spanW * 0.5, 4.2, 0);
+      const rightPillar = new THREE.Mesh(pillarGeo, gantryMat);
+      rightPillar.position.set(spanW * 0.5, 4.2, 0);
 
-    const startStrip = new THREE.Mesh(
-      new THREE.PlaneGeometry(spec.roadWidth, 2.5),
-      new THREE.MeshBasicMaterial({
-        map: bannerTex,
-        polygonOffset: true,
-        polygonOffsetFactor: -2,
-        polygonOffsetUnits: -2,
-      }),
-    );
-    startStrip.rotation.x = -Math.PI * 0.5;
-    startStrip.position.set(0, 0.048, 0);
-    gantryGroup.add(leftPillar, rightPillar, overheadBeam, startStrip);
-    trackContentGroup.add(gantryGroup);
-
-    const portalIndices = [
-      Math.floor(waypoints.length * 0.24),
-      Math.floor(waypoints.length * 0.52),
-      Math.floor(waypoints.length * 0.78),
-    ];
-    for (const pIdx of portalIndices) {
-      const pWp = waypoints[pIdx];
-      if (!pWp) continue;
-      const pGroup = new THREE.Group();
-      pGroup.position.set(pWp.x, 0, pWp.z);
-      pGroup.rotation.y = Math.atan2(pWp.tx, pWp.tz);
-
-      const pLeft = new THREE.Mesh(pillarGeo, gantryMat);
-      pLeft.position.set(-spanW * 0.5, 4.2, 0);
-      const pRight = new THREE.Mesh(pillarGeo, gantryMat);
-      pRight.position.set(spanW * 0.5, 4.2, 0);
-      const pTop = new THREE.Mesh(
-        new THREE.BoxGeometry(spanW + 1.2, 0.75, 0.75),
-        gantryMat,
+      const overheadBeam = new THREE.Mesh(
+        new THREE.BoxGeometry(spanW + 1.4, 1.85, 1.15),
+        new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          map: bannerTex,
+          roughness: 0.3,
+          metalness: 0.25,
+        }),
       );
-      pTop.position.set(0, 8.1, 0);
-      const pNeonBar = new THREE.Mesh(
-        new THREE.BoxGeometry(spanW, 0.24, 0.85),
-        portalAccentMat,
+      overheadBeam.position.set(0, 7.65, 0);
+
+      const startStrip = new THREE.Mesh(
+        new THREE.PlaneGeometry(spec.roadWidth, 2.5),
+        new THREE.MeshBasicMaterial({
+          map: bannerTex,
+          polygonOffset: true,
+          polygonOffsetFactor: -2,
+          polygonOffsetUnits: -2,
+        }),
       );
-      pNeonBar.position.set(0, 7.65, 0);
-      pGroup.add(pLeft, pRight, pTop, pNeonBar);
-      trackContentGroup.add(pGroup);
+      startStrip.rotation.x = -Math.PI * 0.5;
+      startStrip.position.set(0, 0.048, 0);
+      gantryGroup.add(leftPillar, rightPillar, overheadBeam, startStrip);
+      trackContentGroup.add(gantryGroup);
+
+      const portalIndices = [
+        Math.floor(waypoints.length * 0.24),
+        Math.floor(waypoints.length * 0.52),
+        Math.floor(waypoints.length * 0.78),
+      ];
+      for (const pIdx of portalIndices) {
+        const pWp = waypoints[pIdx];
+        if (!pWp) continue;
+        const pGroup = new THREE.Group();
+        pGroup.position.set(pWp.x, 0, pWp.z);
+        pGroup.rotation.y = Math.atan2(pWp.tx, pWp.tz);
+
+        const pLeft = new THREE.Mesh(pillarGeo, gantryMat);
+        pLeft.position.set(-spanW * 0.5, 4.2, 0);
+        const pRight = new THREE.Mesh(pillarGeo, gantryMat);
+        pRight.position.set(spanW * 0.5, 4.2, 0);
+        const pTop = new THREE.Mesh(
+          new THREE.BoxGeometry(spanW + 1.2, 0.75, 0.75),
+          gantryMat,
+        );
+        pTop.position.set(0, 8.1, 0);
+        const pNeonBar = new THREE.Mesh(
+          new THREE.BoxGeometry(spanW, 0.24, 0.85),
+          portalAccentMat,
+        );
+        pNeonBar.position.set(0, 7.65, 0);
+        pGroup.add(pLeft, pRight, pTop, pNeonBar);
+        trackContentGroup.add(pGroup);
+      }
+    } else {
+      // Clean painted white start line on rural tarmac (no steel racing arch clutter!)
+      const startWp = waypoints[2] || waypoints[0];
+      const startLineMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(spec.roadWidth * 0.9, 0.65),
+        new THREE.MeshBasicMaterial({
+          color: 0xf8fafc,
+          polygonOffset: true,
+          polygonOffsetFactor: -2,
+          polygonOffsetUnits: -2,
+        }),
+      );
+      startLineMesh.rotation.x = -Math.PI * 0.5;
+      startLineMesh.position.set(startWp.x, 0.046, startWp.z);
+      startLineMesh.rotation.z = -Math.atan2(startWp.tx, startWp.tz);
+      trackContentGroup.add(startLineMesh);
     }
 
-    // 5. Continuous W-Beam Steel Guardrail Ribbons + Steel Support Posts + Curve Chevrons
+    // 5. Continuous W-Beam Steel Guardrail Ribbons + Steel Support Posts + Curve Chevrons (city & racetrack circuits only)
     const railEdgeOffset = spec.roadWidth * 0.54 + 0.45;
-    const railMat = new THREE.MeshStandardMaterial({
-      color: 0xe2e8f0,
-      metalness: 0.82,
-      roughness: 0.26,
-      side: THREE.DoubleSide,
-    });
-
-    const leftGuardrailMesh = new THREE.Mesh(
-      buildContinuousGuardrailGeometry(waypoints, railEdgeOffset, -1),
-      railMat,
-    );
-    const rightGuardrailMesh = new THREE.Mesh(
-      buildContinuousGuardrailGeometry(waypoints, railEdgeOffset, 1),
-      railMat,
-    );
-    trackContentGroup.add(leftGuardrailMesh, rightGuardrailMesh);
-
-    // Steel Guardrail Support I-Posts + Red/Amber Retro-Reflectors
-    const postGeo = new THREE.BoxGeometry(0.14, 0.74, 0.14);
-    postGeo.translate(0, 0.37, 0);
-    const reflectorGeo = new THREE.BoxGeometry(0.18, 0.09, 0.08);
-    reflectorGeo.translate(0, 0.62, 0);
-    const reflectorMat = new THREE.MeshStandardMaterial({
-      color: 0xef4444,
-      emissive: 0xef4444,
-      emissiveIntensity: 1.8,
-    });
-
-    const postTransforms: Array<{ x: number; z: number; rotY: number }> = [];
     const chevronTransforms: Array<{ x: number; z: number; rotY: number }> = [];
 
+    if (!isCountryside) {
+      const railMat = new THREE.MeshStandardMaterial({
+        color: 0xe2e8f0,
+        metalness: 0.82,
+        roughness: 0.26,
+        side: THREE.DoubleSide,
+      });
+
+      const leftGuardrailMesh = new THREE.Mesh(
+        buildContinuousGuardrailGeometry(waypoints, railEdgeOffset, -1),
+        railMat,
+      );
+      const rightGuardrailMesh = new THREE.Mesh(
+        buildContinuousGuardrailGeometry(waypoints, railEdgeOffset, 1),
+        railMat,
+      );
+      trackContentGroup.add(leftGuardrailMesh, rightGuardrailMesh);
+
+      // Steel Guardrail Support I-Posts + Red/Amber Retro-Reflectors
+      const postGeo = new THREE.BoxGeometry(0.14, 0.74, 0.14);
+      postGeo.translate(0, 0.37, 0);
+      const reflectorGeo = new THREE.BoxGeometry(0.18, 0.09, 0.08);
+      reflectorGeo.translate(0, 0.62, 0);
+      const reflectorMat = new THREE.MeshStandardMaterial({
+        color: 0xef4444,
+        emissive: 0xef4444,
+        emissiveIntensity: 1.8,
+      });
+
+      const postTransforms: Array<{ x: number; z: number; rotY: number }> = [];
+
+      for (let i = 0; i < waypoints.length; i++) {
+        const wp = waypoints[i];
+        const rotY = Math.atan2(wp.tx, wp.tz);
+
+        for (const side of [-1, 1]) {
+          postTransforms.push({
+            x: wp.x + wp.nx * side * (railEdgeOffset + 0.06),
+            z: wp.z + wp.nz * side * (railEdgeOffset + 0.06),
+            rotY,
+          });
+        }
+      }
+
+      const postInst = new THREE.InstancedMesh(
+        postGeo,
+        gantryMat,
+        postTransforms.length,
+      );
+      const reflectorInst = new THREE.InstancedMesh(
+        reflectorGeo,
+        reflectorMat,
+        postTransforms.length,
+      );
+      for (let i = 0; i < postTransforms.length; i++) {
+        const pt = postTransforms[i];
+        dummy.position.set(pt.x, 0, pt.z);
+        dummy.rotation.set(0, pt.rotY, 0);
+        dummy.scale.setScalar(1);
+        dummy.updateMatrix();
+        postInst.setMatrixAt(i, dummy.matrix);
+        reflectorInst.setMatrixAt(i, dummy.matrix);
+      }
+      postInst.instanceMatrix.needsUpdate = true;
+      reflectorInst.instanceMatrix.needsUpdate = true;
+      postInst.computeBoundingSphere();
+      reflectorInst.computeBoundingSphere();
+      trackContentGroup.add(postInst, reflectorInst);
+    }
+
+    // Curve Warning Chevrons on Sharp Corners
     for (let i = 0; i < waypoints.length; i++) {
       const wp = waypoints[i];
       const wpNext = waypoints[(i + 3) % waypoints.length];
       const rotY = Math.atan2(wp.tx, wp.tz);
-
-      for (const side of [-1, 1]) {
-        postTransforms.push({
-          x: wp.x + wp.nx * side * (railEdgeOffset + 0.06),
-          z: wp.z + wp.nz * side * (railEdgeOffset + 0.06),
-          rotY,
-        });
-      }
-
       const cross = wp.tx * wpNext.tz - wp.tz * wpNext.tx;
-      if (Math.abs(cross) > 0.08 && i % 4 === 0) {
+      const chevThreshold = isCountryside ? 0.024 : 0.08;
+      if (Math.abs(cross) > chevThreshold && i % (isCountryside ? 3 : 4) === 0) {
         const outsideSign = cross > 0 ? -1 : 1;
+        const cDist = isCountryside ? spec.roadWidth * 0.54 + 1.25 : railEdgeOffset + 0.95;
         chevronTransforms.push({
-          x: wp.x + wp.nx * outsideSign * (railEdgeOffset + 0.95),
-          z: wp.z + wp.nz * outsideSign * (railEdgeOffset + 0.95),
+          x: wp.x + wp.nx * outsideSign * cDist,
+          z: wp.z + wp.nz * outsideSign * cDist,
           rotY: rotY + (outsideSign > 0 ? -0.35 : 0.35),
         });
       }
     }
-
-    const postInst = new THREE.InstancedMesh(
-      postGeo,
-      gantryMat,
-      postTransforms.length,
-    );
-    const reflectorInst = new THREE.InstancedMesh(
-      reflectorGeo,
-      reflectorMat,
-      postTransforms.length,
-    );
-    for (let i = 0; i < postTransforms.length; i++) {
-      const pt = postTransforms[i];
-      dummy.position.set(pt.x, 0, pt.z);
-      dummy.rotation.set(0, pt.rotY, 0);
-      dummy.scale.setScalar(1);
-      dummy.updateMatrix();
-      postInst.setMatrixAt(i, dummy.matrix);
-      reflectorInst.setMatrixAt(i, dummy.matrix);
-    }
-    postInst.instanceMatrix.needsUpdate = true;
-    reflectorInst.instanceMatrix.needsUpdate = true;
-    postInst.computeBoundingSphere();
-    reflectorInst.computeBoundingSphere();
-    trackContentGroup.add(postInst, reflectorInst);
 
     if (chevronTransforms.length > 0) {
       const chevGeo = new THREE.BoxGeometry(1.8, 0.95, 0.12);
@@ -2513,182 +3036,482 @@ export function buildRacingWorld(
     boxTowerGeo.translate(0, 0.5, 0);
 
     if (isCountryside) {
-      // 1. Classic Rustic Red Barns + Tall Cylindrical Grain Silos
-      const barnCoords: Array<{ x: number; z: number; rotY: number }> = [];
-      for (let i = 0; i < waypoints.length; i += 18) {
-        const wp = waypoints[i];
-        const side = (i / 18) % 2 === 0 ? 1 : -1;
-        const distOut = spec.roadWidth * 0.54 + 28 + ((i * 7) % 16);
-        const bx = wp.x + wp.nx * side * distOut;
-        const bz = wp.z + wp.nz * side * distOut;
-        if (minDistanceToWaypoints(bx, bz, waypoints) >= spec.roadWidth * 0.55 + 22) {
-          const rotY = Math.atan2(wp.tx, wp.tz) + (side > 0 ? -0.4 : 0.4);
-          barnCoords.push({ x: bx, z: bz, rotY });
-        }
-      }
-      if (barnCoords.length > 0) {
-        const barnMat = new THREE.MeshStandardMaterial({
-          color: 0xffffff,
-          map: barnTex,
-          roughness: 0.72,
-          metalness: 0.12,
-        });
-        const barnInst = new THREE.InstancedMesh(
-          rusticBarnGeo,
-          barnMat,
-          barnCoords.length,
-        );
-        barnInst.castShadow = !isSoftwareGl;
-        barnInst.receiveShadow = true;
-        for (let k = 0; k < barnCoords.length; k++) {
-          const bc = barnCoords[k];
-          dummy.position.set(bc.x, 0, bc.z);
-          dummy.rotation.set(0, bc.rotY, 0);
-          dummy.scale.set(1.0, 1.0, 1.0);
-          dummy.updateMatrix();
-          barnInst.setMatrixAt(k, dummy.matrix);
-        }
-        barnInst.instanceMatrix.needsUpdate = true;
-        barnInst.computeBoundingSphere();
-        trackContentGroup.add(barnInst);
-      }
-
-      // 2. Dutch Windmills with 4-Vane Sails
-      const windmillCoords: Array<{ x: number; z: number; rotY: number }> = [];
-      for (let i = 8; i < waypoints.length; i += 26) {
-        const wp = waypoints[i];
-        const side = (i / 26) % 2 === 0 ? -1 : 1;
-        const distOut = spec.roadWidth * 0.54 + 36 + ((i * 11) % 18);
-        const wx = wp.x + wp.nx * side * distOut;
-        const wz = wp.z + wp.nz * side * distOut;
-        if (minDistanceToWaypoints(wx, wz, waypoints) >= spec.roadWidth * 0.55 + 26) {
-          const rotY = Math.atan2(wp.tx, wp.tz) + 0.35;
-          windmillCoords.push({ x: wx, z: wz, rotY });
-        }
-      }
-      if (windmillCoords.length > 0) {
-        const windmillMat = new THREE.MeshStandardMaterial({
-          color: 0xffffff,
-          map: windmillTex,
-          roughness: 0.84,
-          metalness: 0.08,
-        });
-        const windmillInst = new THREE.InstancedMesh(
-          dutchWindmillGeo,
-          windmillMat,
-          windmillCoords.length,
-        );
-        windmillInst.castShadow = !isSoftwareGl;
-        windmillInst.receiveShadow = true;
-        for (let k = 0; k < windmillCoords.length; k++) {
-          const wc = windmillCoords[k];
-          dummy.position.set(wc.x, 0, wc.z);
-          dummy.rotation.set(0, wc.rotY, 0);
-          dummy.scale.set(1.15, 1.15, 1.15);
-          dummy.updateMatrix();
-          windmillInst.setMatrixAt(k, dummy.matrix);
-        }
-        windmillInst.instanceMatrix.needsUpdate = true;
-        windmillInst.computeBoundingSphere();
-        trackContentGroup.add(windmillInst);
-      }
-
-      // 3. Country Farmhouse Stone Cottages
-      const cottageCoords: Array<{ x: number; z: number; rotY: number }> = [];
-      for (let i = 4; i < waypoints.length; i += 20) {
-        const wp = waypoints[i];
-        const side = (i / 20) % 2 === 0 ? 1 : -1;
-        const distOut = spec.roadWidth * 0.54 + 22 + ((i * 5) % 14);
-        const cx = wp.x + wp.nx * side * distOut;
-        const cz = wp.z + wp.nz * side * distOut;
-        if (minDistanceToWaypoints(cx, cz, waypoints) >= spec.roadWidth * 0.55 + 18) {
-          const rotY = Math.atan2(wp.tx, wp.tz) + (side > 0 ? 0.2 : -0.2);
-          cottageCoords.push({ x: cx, z: cz, rotY });
-        }
-      }
-      if (cottageCoords.length > 0) {
-        const cottageMat = new THREE.MeshStandardMaterial({
-          color: 0xfef3c7,
-          roughness: 0.85,
-          metalness: 0.05,
-        });
-        const cottageInst = new THREE.InstancedMesh(
-          countryCottageGeo,
-          cottageMat,
-          cottageCoords.length,
-        );
-        cottageInst.castShadow = !isSoftwareGl;
-        cottageInst.receiveShadow = true;
-        for (let k = 0; k < cottageCoords.length; k++) {
-          const cc = cottageCoords[k];
-          dummy.position.set(cc.x, 0, cc.z);
-          dummy.rotation.set(0, cc.rotY, 0);
-          dummy.scale.set(1.0, 1.0, 1.0);
-          dummy.updateMatrix();
-          cottageInst.setMatrixAt(k, dummy.matrix);
-        }
-        cottageInst.instanceMatrix.needsUpdate = true;
-        cottageInst.computeBoundingSphere();
-        trackContentGroup.add(cottageInst);
-      }
-
-      // 4. Golden Cylindrical Hay Bale Groups along Fields and Straights
-      const hayBaleCoords: Array<{ x: number; z: number; rotY: number }> = [];
-      for (let i = 0; i < waypoints.length; i += 7) {
-        const wp = waypoints[i];
-        const side = (i / 7) % 2 === 0 ? -1 : 1;
-        const distOut = spec.roadWidth * 0.54 + 8.5 + ((i * 3) % 9);
-        const hx = wp.x + wp.nx * side * distOut;
-        const hz = wp.z + wp.nz * side * distOut;
-        if (minDistanceToWaypoints(hx, hz, waypoints) >= spec.roadWidth * 0.55 + 6.0) {
-          const rotY = Math.atan2(wp.tx, wp.tz) + (i * 0.4);
-          hayBaleCoords.push({ x: hx, z: hz, rotY });
-        }
-      }
-      if (hayBaleCoords.length > 0) {
-        const hayBaleMat = new THREE.MeshStandardMaterial({
-          color: 0xffffff,
-          map: hayBaleTex,
-          roughness: 0.94,
-          metalness: 0.02,
-        });
-        const hayBaleInst = new THREE.InstancedMesh(
-          hayBaleGroupGeo,
-          hayBaleMat,
-          hayBaleCoords.length,
-        );
-        hayBaleInst.castShadow = !isSoftwareGl;
-        hayBaleInst.receiveShadow = true;
-        for (let k = 0; k < hayBaleCoords.length; k++) {
-          const hc = hayBaleCoords[k];
-          dummy.position.set(hc.x, 0, hc.z);
-          dummy.rotation.set(0, hc.rotY, 0);
-          dummy.scale.set(1.0, 1.0, 1.0);
-          dummy.updateMatrix();
-          hayBaleInst.setMatrixAt(k, dummy.matrix);
-        }
-        hayBaleInst.instanceMatrix.needsUpdate = true;
-        hayBaleInst.computeBoundingSphere();
-        trackContentGroup.add(hayBaleInst);
-      }
-
-      // 5. Split-Rail Wooden Fences along Roadside Verges
-      const fenceCoords: Array<{ x: number; z: number; rotY: number }> = [];
-      const fenceDist = spec.roadWidth * 0.54 + 4.2;
+      // 1. Continuous Black & White Striped Roadside Guide Marker Posts with Red Reflector Caps (both shoulders)
+      const markerPostCoords: Array<{ x: number; z: number; rotY: number }> = [];
+      const markerDist = spec.roadWidth * 0.54 + 0.65;
       for (let i = 0; i < waypoints.length; i += 2) {
         const wp = waypoints[i];
+        const rotY = Math.atan2(wp.tx, wp.tz);
         for (const side of [-1, 1]) {
-          if ((i + (side > 0 ? 1 : 0)) % 6 !== 0) {
-            const fx = wp.x + wp.nx * side * fenceDist;
-            const fz = wp.z + wp.nz * side * fenceDist;
-            const rotY = Math.atan2(wp.tx, wp.tz);
-            fenceCoords.push({ x: fx, z: fz, rotY });
+          markerPostCoords.push({
+            x: wp.x + wp.nx * side * markerDist,
+            z: wp.z + wp.nz * side * markerDist,
+            rotY,
+          });
+        }
+      }
+      if (markerPostCoords.length > 0) {
+        const markerMat = new THREE.MeshStandardMaterial({
+          map: markerPostTex,
+          roughness: 0.52,
+          metalness: 0.12,
+        });
+        const markerInst = new THREE.InstancedMesh(
+          roadsideMarkerPostGeo,
+          markerMat,
+          markerPostCoords.length,
+        );
+        markerInst.castShadow = !isSoftwareGl;
+        markerInst.receiveShadow = true;
+        for (let k = 0; k < markerPostCoords.length; k++) {
+          const mp = markerPostCoords[k];
+          dummy.position.set(mp.x, 0, mp.z);
+          dummy.rotation.set(0, mp.rotY, 0);
+          dummy.scale.set(1.0, 1.0, 1.0);
+          dummy.updateMatrix();
+          markerInst.setMatrixAt(k, dummy.matrix);
+        }
+        markerInst.instanceMatrix.needsUpdate = true;
+        markerInst.computeBoundingSphere();
+        trackContentGroup.add(markerInst);
+      }
+
+      // 2. Rural Telegraph / Utility Power Poles with Crossarms along Left Road Verge
+      const poleCoords: Array<{ x: number; z: number; rotY: number }> = [];
+      const poleDist = spec.roadWidth * 0.54 + 2.5;
+      for (let i = 0; i < waypoints.length; i += 7) {
+        const wp = waypoints[i];
+        poleCoords.push({
+          x: wp.x - wp.nx * poleDist,
+          z: wp.z - wp.nz * poleDist,
+          rotY: Math.atan2(wp.tx, wp.tz),
+        });
+      }
+      if (poleCoords.length > 0) {
+        const telegraphMat = new THREE.MeshStandardMaterial({
+          color: 0x4a3525, // weathered dark timber pole
+          roughness: 0.9,
+          metalness: 0.08,
+        });
+        const poleInst = new THREE.InstancedMesh(
+          telegraphPoleGeo,
+          telegraphMat,
+          poleCoords.length,
+        );
+        poleInst.castShadow = !isSoftwareGl;
+        poleInst.receiveShadow = true;
+        for (let k = 0; k < poleCoords.length; k++) {
+          const p = poleCoords[k];
+          dummy.position.set(p.x, 0, p.z);
+          dummy.rotation.set(0, p.rotY, 0);
+          dummy.scale.set(1.0, 1.0, 1.0);
+          dummy.updateMatrix();
+          poleInst.setMatrixAt(k, dummy.matrix);
+        }
+        poleInst.instanceMatrix.needsUpdate = true;
+        poleInst.computeBoundingSphere();
+        trackContentGroup.add(poleInst);
+
+        // Overhead Utility Power Lines between Telegraph Poles (matching photo)
+        if (poleCoords.length > 1) {
+          const wirePoints: number[] = [];
+          for (let p = 0; p < poleCoords.length - 1; p++) {
+            const p1 = poleCoords[p];
+            const p2 = poleCoords[p + 1];
+            for (const offset of [-0.95, 0, 0.95]) {
+              const rot1 = p1.rotY;
+              const rot2 = p2.rotY;
+              const p1x = p1.x + Math.cos(rot1) * offset;
+              const p1z = p1.z - Math.sin(rot1) * offset;
+              const p2x = p2.x + Math.cos(rot2) * offset;
+              const p2z = p2.z - Math.sin(rot2) * offset;
+
+              const segs = 6;
+              for (let s = 0; s < segs; s++) {
+                const t0 = s / segs;
+                const t1 = (s + 1) / segs;
+                const xA = p1x + (p2x - p1x) * t0;
+                const zA = p1z + (p2z - p1z) * t0;
+                const yA = 8.85 - Math.sin(t0 * Math.PI) * 0.42;
+                const xB = p1x + (p2x - p1x) * t1;
+                const zB = p1z + (p2z - p1z) * t1;
+                const yB = 8.85 - Math.sin(t1 * Math.PI) * 0.42;
+                wirePoints.push(xA, yA, zA, xB, yB, zB);
+              }
+            }
           }
+          const wireGeo = new THREE.BufferGeometry();
+          wireGeo.setAttribute(
+            'position',
+            new THREE.Float32BufferAttribute(wirePoints, 3),
+          );
+          const wireMat = new THREE.LineBasicMaterial({
+            color: 0x1e293b,
+            transparent: true,
+            opacity: 0.72,
+          });
+          const wireMesh = new THREE.LineSegments(wireGeo, wireMat);
+          trackContentGroup.add(wireMesh);
+        }
+      }
+
+      // 3. Elevated Wooden Stilt Farmhouses with Verandas, Ladders & Glowing Amber Windows
+      const stiltHouseCoords: Array<{ x: number; z: number; rotY: number; scale: number }> = [];
+
+      // Roadside Elevated Stilt Farmhouses along the Left Shoulder (matching reference photo)
+      for (let i = 11; i < waypoints.length; i += 16) {
+        const wp = waypoints[i];
+        const isForeground = i === 11;
+        const distOut = isForeground ? spec.roadWidth * 0.54 + 8.5 : spec.roadWidth * 0.54 + 14 + ((i * 3) % 8);
+        const sx = wp.x - wp.nx * distOut;
+        const sz = wp.z - wp.nz * distOut;
+        const rotY = Math.atan2(wp.tx, wp.tz) + 0.35 + Math.PI; // Veranda & ladder facing toward the road
+        stiltHouseCoords.push({
+          x: sx,
+          z: sz,
+          rotY,
+          scale: isForeground ? 1.25 : 0.95 + ((i % 3) * 0.08),
+        });
+      }
+
+      // Distant village farmhouses across the rice paddies
+      for (let i = 20; i < waypoints.length; i += 22) {
+        const wp = waypoints[i];
+        const side = (i / 22) % 2 === 0 ? 1 : -1;
+        const distOut = spec.roadWidth * 0.54 + 55 + ((i * 11) % 24);
+        const sx = wp.x + wp.nx * side * distOut;
+        const sz = wp.z + wp.nz * side * distOut;
+        if (minDistanceToWaypoints(sx, sz, waypoints) >= spec.roadWidth * 0.55 + 38) {
+          stiltHouseCoords.push({
+            x: sx,
+            z: sz,
+            rotY: Math.atan2(wp.tx, wp.tz) + 0.6,
+            scale: 0.85,
+          });
+        }
+      }
+      if (stiltHouseCoords.length > 0) {
+        const stiltMat = new THREE.MeshStandardMaterial({
+          map: stiltHouseTex,
+          roughness: 0.88,
+          metalness: 0.05,
+        });
+        const stiltWinMat = new THREE.MeshBasicMaterial({
+          color: 0xfbbf24,
+        });
+        const stiltInst = new THREE.InstancedMesh(
+          elevatedStiltHouseGeo,
+          stiltMat,
+          stiltHouseCoords.length,
+        );
+        const stiltWinInst = new THREE.InstancedMesh(
+          stiltHouseWindowsGeo,
+          stiltWinMat,
+          stiltHouseCoords.length,
+        );
+        stiltInst.castShadow = !isSoftwareGl;
+        stiltInst.receiveShadow = true;
+        for (let k = 0; k < stiltHouseCoords.length; k++) {
+          const sh = stiltHouseCoords[k];
+          dummy.position.set(sh.x, 0, sh.z);
+          dummy.rotation.set(0, sh.rotY, 0);
+          dummy.scale.setScalar(sh.scale);
+          dummy.updateMatrix();
+          stiltInst.setMatrixAt(k, dummy.matrix);
+          stiltWinInst.setMatrixAt(k, dummy.matrix);
+        }
+        stiltInst.instanceMatrix.needsUpdate = true;
+        stiltWinInst.instanceMatrix.needsUpdate = true;
+        stiltInst.computeBoundingSphere();
+        stiltWinInst.computeBoundingSphere();
+        trackContentGroup.add(stiltInst, stiltWinInst);
+
+        // Large Weathered River Boulder in Roadside Grass (matching photo bottom-left)
+        const boulderGeo = new THREE.DodecahedronGeometry(1.05, 1);
+        const bPos = boulderGeo.attributes.position;
+        for (let bp = 0; bp < bPos.count; bp++) {
+          const bx = bPos.getX(bp);
+          const by = bPos.getY(bp);
+          const bz = bPos.getZ(bp);
+          bPos.setXYZ(bp, bx * 1.3, by * 0.65, bz * 1.1);
+        }
+        boulderGeo.computeVertexNormals();
+        const boulderMat = new THREE.MeshStandardMaterial({
+          color: 0x475569, // weathered dark river slate rock
+          roughness: 0.92,
+          metalness: 0.04,
+        });
+        const boulderMesh = new THREE.Mesh(boulderGeo, boulderMat);
+        const wpBoulder = waypoints[Math.min(10, waypoints.length - 1)];
+        boulderMesh.position.set(
+          wpBoulder.x - wpBoulder.nx * (spec.roadWidth * 0.54 + 2.2),
+          0.35,
+          wpBoulder.z - wpBoulder.nz * (spec.roadWidth * 0.54 + 2.2),
+        );
+        boulderMesh.rotation.set(0.2, 0.8, -0.1);
+        boulderMesh.castShadow = !isSoftwareGl;
+        boulderMesh.receiveShadow = true;
+        trackContentGroup.add(boulderMesh);
+      }
+
+      // 4. Tropical Banana Tree Plant Clusters around Stilt Houses & Roadside Ditches
+      const bananaCoords: Array<{ x: number; z: number; rotY: number; scale: number }> = [];
+
+      // Lush banana cluster framing the foreground stilt house (matching photo)
+      const fgHouse = stiltHouseCoords[0];
+      for (let b = 0; b < 8; b++) {
+        const ang = b * 0.82 + 0.25;
+        const rad = 5.6 + (b * 1.1);
+        bananaCoords.push({
+          x: fgHouse.x + Math.cos(ang) * rad,
+          z: fgHouse.z + Math.sin(ang) * rad,
+          rotY: ang + 1.2,
+          scale: 1.1 + (b * 0.12),
+        });
+      }
+
+      // Additional banana clusters at other farmhouses
+      for (let k = 1; k < Math.min(stiltHouseCoords.length, 6); k++) {
+        const sh = stiltHouseCoords[k];
+        for (let b = 0; b < 3; b++) {
+          const ang = b * 1.8 + 0.4;
+          const rad = 7.0 + (b * 1.8);
+          bananaCoords.push({
+            x: sh.x + Math.cos(ang) * rad,
+            z: sh.z + Math.sin(ang) * rad,
+            rotY: ang + 1.1,
+            scale: 0.88 + (b * 0.12),
+          });
+        }
+      }
+      // Roadside banana clumps along verges
+      for (let i = 4; i < waypoints.length; i += 10) {
+        const wp = waypoints[i];
+        for (const side of [-1, 1]) {
+          const bDist = spec.roadWidth * 0.54 + 4.5 + ((i * 3) % 4);
+          bananaCoords.push({
+            x: wp.x + wp.nx * side * bDist,
+            z: wp.z + wp.nz * side * bDist,
+            rotY: i * 0.85,
+            scale: 0.95 + ((i % 4) * 0.12),
+          });
+        }
+      }
+      if (bananaCoords.length > 0) {
+        const bananaMat = new THREE.MeshStandardMaterial({
+          color: 0x166534, // rich natural tropical banana leaf green
+          roughness: 0.65,
+          metalness: 0.06,
+          side: THREE.DoubleSide,
+        });
+        const bananaInst = new THREE.InstancedMesh(
+          bananaPlantGeo,
+          bananaMat,
+          bananaCoords.length,
+        );
+        bananaInst.castShadow = !isSoftwareGl;
+        bananaInst.receiveShadow = true;
+        for (let k = 0; k < bananaCoords.length; k++) {
+          const bc = bananaCoords[k];
+          dummy.position.set(bc.x, 0, bc.z);
+          dummy.rotation.set(0, bc.rotY, 0);
+          dummy.scale.setScalar(bc.scale);
+          dummy.updateMatrix();
+          bananaInst.setMatrixAt(k, dummy.matrix);
+        }
+        bananaInst.instanceMatrix.needsUpdate = true;
+        bananaInst.computeBoundingSphere();
+        trackContentGroup.add(bananaInst);
+      }
+
+      // 5. Open-Air Thatched Farm Shed with Conical Golden Straw Haystack (matching shed behind foreground house)
+      const shedCoords: Array<{ x: number; z: number; rotY: number }> = [];
+      const wpShed = waypoints[Math.min(15, waypoints.length - 1)];
+      shedCoords.push({
+        x: wpShed.x - wpShed.nx * (spec.roadWidth * 0.54 + 13.5),
+        z: wpShed.z - wpShed.nz * (spec.roadWidth * 0.54 + 13.5),
+        rotY: Math.atan2(wpShed.tx, wpShed.tz) + 0.35,
+      });
+
+      for (let i = 32; i < waypoints.length; i += 18) {
+        const wp = waypoints[i];
+        const side = (i / 18) % 2 === 0 ? -1 : 1;
+        const distOut = spec.roadWidth * 0.54 + 20 + ((i * 5) % 12);
+        const sx = wp.x + wp.nx * side * distOut;
+        const sz = wp.z + wp.nz * side * distOut;
+        if (minDistanceToWaypoints(sx, sz, waypoints) >= spec.roadWidth * 0.55 + 16) {
+          shedCoords.push({
+            x: sx,
+            z: sz,
+            rotY: Math.atan2(wp.tx, wp.tz) + 0.25,
+          });
+        }
+      }
+      if (shedCoords.length > 0) {
+        const shedMat = new THREE.MeshStandardMaterial({
+          map: thatchRoofTex,
+          roughness: 0.88,
+          metalness: 0.06,
+        });
+        const shedInst = new THREE.InstancedMesh(
+          openThatchedShedGeo,
+          shedMat,
+          shedCoords.length,
+        );
+        shedInst.castShadow = !isSoftwareGl;
+        shedInst.receiveShadow = true;
+        for (let k = 0; k < shedCoords.length; k++) {
+          const sc = shedCoords[k];
+          dummy.position.set(sc.x, 0, sc.z);
+          dummy.rotation.set(0, sc.rotY, 0);
+          dummy.scale.set(1.0, 1.0, 1.0);
+          dummy.updateMatrix();
+          shedInst.setMatrixAt(k, dummy.matrix);
+        }
+        shedInst.instanceMatrix.needsUpdate = true;
+        shedInst.computeBoundingSphere();
+        trackContentGroup.add(shedInst);
+      }
+
+      // 6. Blue 4-Wheel Agricultural Tractor parked in the Rice Paddy Field (matching photo)
+      const tractorCoords: Array<{ x: number; z: number; rotY: number }> = [];
+      const wpTractor = waypoints[Math.min(20, waypoints.length - 1)];
+      tractorCoords.push({
+        x: wpTractor.x - wpTractor.nx * (spec.roadWidth * 0.54 + 28),
+        z: wpTractor.z - wpTractor.nz * (spec.roadWidth * 0.54 + 28),
+        rotY: Math.atan2(wpTractor.tx, wpTractor.tz) + 0.45,
+      });
+      if (waypoints.length > 50) {
+        const wpTractor2 = waypoints[Math.floor(waypoints.length * 0.68)];
+        tractorCoords.push({
+          x: wpTractor2.x + wpTractor2.nx * (spec.roadWidth * 0.54 + 40),
+          z: wpTractor2.z + wpTractor2.nz * (spec.roadWidth * 0.54 + 40),
+          rotY: Math.atan2(wpTractor2.tx, wpTractor2.tz) - 0.6,
+        });
+      }
+      const tractorMat = new THREE.MeshStandardMaterial({
+        color: 0x2563eb, // vibrant royal blue agricultural tractor
+        roughness: 0.42,
+        metalness: 0.35,
+      });
+      const tractorInst = new THREE.InstancedMesh(
+        farmTractorGeo,
+        tractorMat,
+        tractorCoords.length,
+      );
+      tractorInst.castShadow = !isSoftwareGl;
+      tractorInst.receiveShadow = true;
+      for (let k = 0; k < tractorCoords.length; k++) {
+        const tc = tractorCoords[k];
+        dummy.position.set(tc.x, 0, tc.z);
+        dummy.rotation.set(0, tc.rotY, 0);
+        dummy.scale.set(1.0, 1.0, 1.0);
+        dummy.updateMatrix();
+        tractorInst.setMatrixAt(k, dummy.matrix);
+      }
+      tractorInst.instanceMatrix.needsUpdate = true;
+      tractorInst.computeBoundingSphere();
+      trackContentGroup.add(tractorInst);
+
+      // 7. Reflective Riverside Canal with Sunlight Sheen & Rustic Wooden Trestle Footbridge
+      const riverStart = Math.min(8, waypoints.length - 1);
+      const riverEnd = Math.min(40, waypoints.length - 1);
+      const canalSegs = riverEnd - riverStart;
+
+      if (canalSegs > 4) {
+        const riverPos: number[] = [];
+        const riverIndices: number[] = [];
+
+        for (let i = riverStart; i <= riverEnd; i++) {
+          const wp = waypoints[i];
+          const taperIn = Math.min(1, (i - riverStart) / 3);
+          const taperOut = Math.min(1, (riverEnd - i) / 3);
+          const taper = Math.max(0.08, Math.min(taperIn, taperOut));
+
+          const innerOffset = spec.roadWidth * 0.54 + 5.5 + (1 - taper) * 4;
+          const outerOffset = innerOffset + 20.0 * taper;
+
+          const inX = wp.x + wp.nx * innerOffset;
+          const inZ = wp.z + wp.nz * innerOffset;
+          const outX = wp.x + wp.nx * outerOffset;
+          const outZ = wp.z + wp.nz * outerOffset;
+
+          riverPos.push(inX, 0.05, inZ);
+          riverPos.push(outX, 0.05, outZ);
+
+          const idx = (i - riverStart) * 2;
+          if (i < riverEnd) {
+            riverIndices.push(idx, idx + 1, idx + 2);
+            riverIndices.push(idx + 1, idx + 3, idx + 2);
+          }
+        }
+
+        const riverGeo = new THREE.BufferGeometry();
+        riverGeo.setAttribute('position', new THREE.Float32BufferAttribute(riverPos, 3));
+        riverGeo.setIndex(riverIndices);
+        riverGeo.computeVertexNormals();
+
+        const riverMat = new THREE.MeshStandardMaterial({
+          color: 0x163828, // Tropical deep green reflective river water
+          roughness: 0.62,
+          metalness: 0.02,
+        });
+        const riverMesh = new THREE.Mesh(riverGeo, riverMat);
+        riverMesh.receiveShadow = true;
+        trackContentGroup.add(riverMesh);
+
+        // Rustic Multi-Span Timber Trestle Footbridge crossing the canal (matching photo)
+        const wpBridge = waypoints[Math.min(18, waypoints.length - 1)];
+        const bridgeCenterX = wpBridge.x + wpBridge.nx * (spec.roadWidth * 0.54 + 15.5);
+        const bridgeCenterZ = wpBridge.z + wpBridge.nz * (spec.roadWidth * 0.54 + 15.5);
+        const bridgeRotY = Math.atan2(wpBridge.nx, wpBridge.nz);
+
+        const bridgeMat = new THREE.MeshStandardMaterial({
+          color: 0x78350f, // rustic weathered timber
+          roughness: 0.88,
+          metalness: 0.05,
+        });
+        const bridgeMesh = new THREE.Mesh(riversideWoodenBridgeGeo, bridgeMat);
+        bridgeMesh.position.set(bridgeCenterX, 0, bridgeCenterZ);
+        bridgeMesh.rotation.set(0, bridgeRotY, 0);
+        bridgeMesh.castShadow = !isSoftwareGl;
+        bridgeMesh.receiveShadow = true;
+        trackContentGroup.add(bridgeMesh);
+
+        // Stilt cottage on the far bank of the river bridge (matching photo)
+        const farBankHouse = new THREE.Mesh(elevatedStiltHouseGeo, new THREE.MeshStandardMaterial({
+          map: stiltHouseTex,
+          roughness: 0.85,
+          metalness: 0.08,
+        }));
+        farBankHouse.position.set(
+          wpBridge.x + wpBridge.nx * (spec.roadWidth * 0.54 + 32),
+          0,
+          wpBridge.z + wpBridge.nz * (spec.roadWidth * 0.54 + 32),
+        );
+        farBankHouse.rotation.set(0, bridgeRotY + Math.PI * 0.25, 0);
+        farBankHouse.castShadow = !isSoftwareGl;
+        farBankHouse.receiveShadow = true;
+        trackContentGroup.add(farBankHouse);
+      }
+
+      // 8. Rustic Split-Rail Wooden Paddock Fences along Left Paddock Boundary
+      // (Right side is intentionally kept fence-free so the river canal & wooden bridge are completely open to view!)
+      const fenceCoords: Array<{ x: number; z: number; rotY: number }> = [];
+      const fenceDist = spec.roadWidth * 0.54 + 6.2;
+      for (let i = 0; i < waypoints.length; i += 2) {
+        const wp = waypoints[i];
+        // Only on left pasture border (side = -1)
+        if (i % 7 !== 0) {
+          const fx = wp.x - wp.nx * fenceDist;
+          const fz = wp.z - wp.nz * fenceDist;
+          const rotY = Math.atan2(wp.tx, wp.tz);
+          fenceCoords.push({ x: fx, z: fz, rotY });
         }
       }
       if (fenceCoords.length > 0) {
         const fenceMat = new THREE.MeshStandardMaterial({
-          color: 0x854d0e, // Rustic cedar timber
+          color: 0x713f12, // rustic cedar paddock rail
           roughness: 0.88,
           metalness: 0.05,
         });
@@ -2973,7 +3796,7 @@ export function buildRacingWorld(
     const primaryGeos = isPalmMap
       ? palmTreeGeos
       : isCountryside
-        ? oakTreeGeos
+        ? palmTreeGeos
         : pineTreeGeos;
     const secondaryGeos =
       spec.envKind === 'desert'
@@ -3060,122 +3883,126 @@ export function buildRacingWorld(
       spec.envKind === 'desert' ? desertBoulderMat : trunkMat,
     );
 
-    // 9. Realistic Highway Streetlights with Overhanging Arms, Volumetric Light Cones & Ground Light Pools
+    // 9. Realistic Highway Streetlights with Overhanging Arms, Volumetric Light Cones & Ground Light Pools (city/tracks only)
     const lampCoords: Array<{ x: number; z: number; rotY: number }> = [];
-    const lampDist = spec.roadWidth * 0.54 + 1.45;
-    for (let i = 0; i < waypoints.length; i += 6) {
-      const wp = waypoints[i];
-      const side = (i / 6) % 2 === 0 ? -1 : 1;
-      const lx = wp.x + wp.nx * side * lampDist;
-      const lz = wp.z + wp.nz * side * lampDist;
-      const rotY = Math.atan2(-wp.nx * side, -wp.nz * side);
-      lampCoords.push({ x: lx, z: lz, rotY });
+    if (!isCountryside) {
+      const lampDist = spec.roadWidth * 0.54 + 1.45;
+      for (let i = 0; i < waypoints.length; i += 6) {
+        const wp = waypoints[i];
+        const side = (i / 6) % 2 === 0 ? -1 : 1;
+        const lx = wp.x + wp.nx * side * lampDist;
+        const lz = wp.z + wp.nz * side * lampDist;
+        const rotY = Math.atan2(-wp.nx * side, -wp.nz * side);
+        lampCoords.push({ x: lx, z: lz, rotY });
+      }
     }
 
-    const basePedestal = new THREE.CylinderGeometry(0.22, 0.28, 0.9, 10);
-    basePedestal.translate(0, 0.45, 0);
-    const mastPole = new THREE.CylinderGeometry(0.09, 0.16, 7.2, 10);
-    mastPole.translate(0, 3.6, 0);
-    const boomArm = new THREE.CylinderGeometry(0.06, 0.08, 2.4, 8);
-    boomArm.rotateX(Math.PI * 0.42);
-    boomArm.translate(0, 7.05, 1.15);
-    const hoodBox = new THREE.BoxGeometry(0.55, 0.18, 0.95);
-    hoodBox.translate(0, 7.28, 2.15);
-    const fullPoleGeo = BufferGeometryUtils.mergeGeometries(
-      [
-        basePedestal.toNonIndexed(),
-        mastPole.toNonIndexed(),
-        boomArm.toNonIndexed(),
-        hoodBox.toNonIndexed(),
-      ],
-      false,
-    );
-    fullPoleGeo.computeVertexNormals();
+    if (lampCoords.length > 0) {
+      const basePedestal = new THREE.CylinderGeometry(0.22, 0.28, 0.9, 10);
+      basePedestal.translate(0, 0.45, 0);
+      const mastPole = new THREE.CylinderGeometry(0.09, 0.16, 7.2, 10);
+      mastPole.translate(0, 3.6, 0);
+      const boomArm = new THREE.CylinderGeometry(0.06, 0.08, 2.4, 8);
+      boomArm.rotateX(Math.PI * 0.42);
+      boomArm.translate(0, 7.05, 1.15);
+      const hoodBox = new THREE.BoxGeometry(0.55, 0.18, 0.95);
+      hoodBox.translate(0, 7.28, 2.15);
+      const fullPoleGeo = BufferGeometryUtils.mergeGeometries(
+        [
+          basePedestal.toNonIndexed(),
+          mastPole.toNonIndexed(),
+          boomArm.toNonIndexed(),
+          hoodBox.toNonIndexed(),
+        ],
+        false,
+      );
+      fullPoleGeo.computeVertexNormals();
 
-    const bulbGeo = new THREE.BoxGeometry(0.46, 0.12, 0.82);
-    bulbGeo.translate(0, 7.18, 2.15);
+      const bulbGeo = new THREE.BoxGeometry(0.46, 0.12, 0.82);
+      bulbGeo.translate(0, 7.18, 2.15);
 
-    const beamConeGeo = new THREE.ConeGeometry(2.65, 7.1, 16, 1, true);
-    beamConeGeo.translate(0, 3.55, 2.15);
+      const beamConeGeo = new THREE.ConeGeometry(2.65, 7.1, 16, 1, true);
+      beamConeGeo.translate(0, 3.55, 2.15);
 
-    const lightPoolGeo = new THREE.CircleGeometry(3.2, 20);
-    lightPoolGeo.rotateX(-Math.PI * 0.5);
-    lightPoolGeo.translate(0, 0.044, 2.15);
+      const lightPoolGeo = new THREE.CircleGeometry(3.2, 20);
+      lightPoolGeo.rotateX(-Math.PI * 0.5);
+      lightPoolGeo.translate(0, 0.044, 2.15);
 
-    const lampGlowColor = 0xfef08a; // Natural warm sodium streetlight
-    const streetLampMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      emissive: isNight ? 0xfef08a : 0x475569,
-      emissiveIntensity: isNight ? 2.5 : 0.0,
-    });
-    const beamConeMat = new THREE.MeshBasicMaterial({
-      color: lampGlowColor,
-      transparent: true,
-      opacity: isNight ? 0.08 : 0.0,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      side: THREE.DoubleSide,
-    });
-    const lightPoolMat = new THREE.MeshBasicMaterial({
-      color: lampGlowColor,
-      transparent: true,
-      opacity: isNight ? 0.18 : 0.0,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
+      const lampGlowColor = 0xfef08a; // Natural warm sodium streetlight
+      const streetLampMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: isNight ? 0xfef08a : 0x475569,
+        emissiveIntensity: isNight ? 2.5 : 0.0,
+      });
+      const beamConeMat = new THREE.MeshBasicMaterial({
+        color: lampGlowColor,
+        transparent: true,
+        opacity: isNight ? 0.08 : 0.0,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+      });
+      const lightPoolMat = new THREE.MeshBasicMaterial({
+        color: lampGlowColor,
+        transparent: true,
+        opacity: isNight ? 0.18 : 0.0,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
 
-    const poleInst = new THREE.InstancedMesh(
-      fullPoleGeo,
-      gantryMat,
-      lampCoords.length,
-    );
-    const bulbInst = new THREE.InstancedMesh(
-      bulbGeo,
-      streetLampMat,
-      lampCoords.length,
-    );
-    const beamInst = new THREE.InstancedMesh(
-      beamConeGeo,
-      beamConeMat,
-      lampCoords.length,
-    );
-    const poolInst = new THREE.InstancedMesh(
-      lightPoolGeo,
-      lightPoolMat,
-      lampCoords.length,
-    );
+      const poleInst = new THREE.InstancedMesh(
+        fullPoleGeo,
+        gantryMat,
+        lampCoords.length,
+      );
+      const bulbInst = new THREE.InstancedMesh(
+        bulbGeo,
+        streetLampMat,
+        lampCoords.length,
+      );
+      const beamInst = new THREE.InstancedMesh(
+        beamConeGeo,
+        beamConeMat,
+        lampCoords.length,
+      );
+      const poolInst = new THREE.InstancedMesh(
+        lightPoolGeo,
+        lightPoolMat,
+        lampCoords.length,
+      );
 
-    for (let i = 0; i < lampCoords.length; i++) {
-      const lp = lampCoords[i];
-      dummy.position.set(lp.x, 0, lp.z);
-      dummy.rotation.set(0, lp.rotY, 0);
-      dummy.scale.setScalar(1);
-      dummy.updateMatrix();
-      poleInst.setMatrixAt(i, dummy.matrix);
-      bulbInst.setMatrixAt(i, dummy.matrix);
-      beamInst.setMatrixAt(i, dummy.matrix);
-      poolInst.setMatrixAt(i, dummy.matrix);
+      for (let i = 0; i < lampCoords.length; i++) {
+        const lp = lampCoords[i];
+        dummy.position.set(lp.x, 0, lp.z);
+        dummy.rotation.set(0, lp.rotY, 0);
+        dummy.scale.setScalar(1);
+        dummy.updateMatrix();
+        poleInst.setMatrixAt(i, dummy.matrix);
+        bulbInst.setMatrixAt(i, dummy.matrix);
+        beamInst.setMatrixAt(i, dummy.matrix);
+        poolInst.setMatrixAt(i, dummy.matrix);
+      }
+      poleInst.instanceMatrix.needsUpdate = true;
+      bulbInst.instanceMatrix.needsUpdate = true;
+      beamInst.instanceMatrix.needsUpdate = true;
+      poolInst.instanceMatrix.needsUpdate = true;
+      poleInst.computeBoundingSphere();
+      bulbInst.computeBoundingSphere();
+      beamInst.computeBoundingSphere();
+      poolInst.computeBoundingSphere();
+      trackContentGroup.add(poleInst, bulbInst, beamInst, poolInst);
     }
-    poleInst.instanceMatrix.needsUpdate = true;
-    bulbInst.instanceMatrix.needsUpdate = true;
-    beamInst.instanceMatrix.needsUpdate = true;
-    poolInst.instanceMatrix.needsUpdate = true;
-    poleInst.computeBoundingSphere();
-    bulbInst.computeBoundingSphere();
-    beamInst.computeBoundingSphere();
-    poolInst.computeBoundingSphere();
-    trackContentGroup.add(poleInst, bulbInst, beamInst, poolInst);
 
     // 10. Guaranteed Road-Clear Craggy Stratified Horizon Mountain Range (44 Peaks / Mesas)
     const mountainPlacements = computeSafeMountainRing(
       waypoints,
       spec.roadWidth,
-      44,
-      56,
+      spec.envKind === 'countryside' ? 28 : 44,
+      spec.envKind === 'countryside' ? 140 : 56,
     );
     const mountainMat = new THREE.MeshStandardMaterial({
-      color: spec.envKind === 'countryside' ? 0x166534 : 0xffffff,
-      map: spec.envKind === 'countryside' ? grassTex : rockTex,
+      color: 0xffffff,
+      map: spec.envKind === 'countryside' ? tropicalMountainTex : rockTex,
       roughness: spec.envKind === 'countryside' ? 0.92 : 0.86,
       metalness: 0.04,
     });
@@ -3183,7 +4010,7 @@ export function buildRacingWorld(
       spec.envKind === 'desert'
         ? buildTerracedSandstoneMesaGeometry(56, 96)
         : spec.envKind === 'countryside'
-          ? rollingPastoralHillGeo
+          ? tropicalMountainRidgeGeo
           : craggyMountainGeo;
     const mountainInst = new THREE.InstancedMesh(
       horizonGeo,

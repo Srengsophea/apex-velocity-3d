@@ -615,9 +615,9 @@ export const TRACK_CATALOG: Record<TrackId, TrackSpec> = {
   },
   countryside_meadows: {
     id: 'countryside_meadows',
-    name: 'Verdant Meadowlands GP',
+    name: 'Tropical Valley Countryside',
     shortName: 'Countryside',
-    subtitle: 'Rolling Farmland Hills, Red Barns, Windmills & Amber Wheat Straights',
+    subtitle: 'Stilt Wooden Farmhouses, Rice Paddies, Riverside Wooden Bridge & Palm Groves',
     difficulty: 'MEDIUM',
     envKind: 'countryside',
     controlPoints: [
@@ -637,21 +637,21 @@ export const TRACK_CATALOG: Record<TrackId, TrackSpec> = {
       [-180, -340],
       [-120, -220],
     ],
-    skyTopColor: 0x0284c7, // Crisp summer blue sky
+    skyTopColor: 0x0284c7, // Tropical azure sky
     skyHorizonColor: 0xbae6fd, // Soft warm atmospheric horizon
     sunDiscColor: 0xfffbeb,
-    fogColor: 0xdbeafe,
-    fogDensity: 0.00078,
-    sunColor: 0xfff7ed,
-    sunIntensity: 2.85,
+    fogColor: 0xdcfce7, // Soft tropical misty green-tinted haze
+    fogDensity: 0.00065,
+    sunColor: 0xffedd5, // Warm golden late-afternoon tropical sun
+    sunIntensity: 3.2,
     hemiSkyColor: 0xe0f2fe,
-    hemiGroundColor: 0x14532d,
-    hemiIntensity: 1.25,
-    groundColor: 0x15803d, // Lush emerald pasture
-    infieldColor: 0xd97706, // Amber golden wheat field
-    foliageColors: [0x15803d, 0x166534, 0xca8a04],
-    archAccentColor: 0x22c55e, // Emerald green
-    roadWidth: 21.5,
+    hemiGroundColor: 0x365314, // Rich tropical vegetative shadow
+    hemiIntensity: 1.35,
+    groundColor: 0x3f6212, // Vibrant emerald rice paddy green
+    infieldColor: 0xca8a04, // Golden mature rice crops & earthen bunds
+    foliageColors: [0x15803d, 0x4d7c0f, 0x65a30d],
+    archAccentColor: 0xf59e0b, // Warm bamboo gold
+    roadWidth: 17.5, // Authentic 2-lane rural highway width
     targetLapTimeSec: 56,
   },
 };

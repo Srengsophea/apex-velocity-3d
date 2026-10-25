@@ -269,6 +269,9 @@ class ApexVelocityRacingScript extends xb.Script {
 
   private updateGantryCardPlacement(shortTrackName: string): void {
     if (!this.gantryCard) return;
+    const isCountryside = TRACK_CATALOG[this.selectedTrackId]?.envKind === 'countryside';
+    this.gantryCard.visible = !isCountryside;
+    if (isCountryside) return;
     const gantryWp = this.waypoints[2] || this.waypoints[0];
     this.gantryCard.position.set(gantryWp.x, 7.25, gantryWp.z - 0.55);
     this.gantryCard.rotation.y = Math.atan2(gantryWp.tx, gantryWp.tz) + Math.PI;
