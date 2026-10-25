@@ -114,11 +114,113 @@ export const CAR_CATALOG: CarSpec[] = [
     massKg: 1620,
     description: 'Armored high-speed metro pursuit interceptor with roof strobe lightbar and bullbar.',
   },
+  {
+    id: 'valkyrie_lmp',
+    name: 'Valkyrie LMP-99 Hyper-Hybrid',
+    category: 'Endurance Le Mans Prototype',
+    bodyStyle: 'hypercar',
+    primaryColor: 0xe2e8f0, // Liquid Silver Metallic
+    secondaryColor: 0x090d16, // Carbon Weave
+    accentColor: 0x84cc16, // Fluorescent Solar Acid Green
+    rimColor: 0x0f172a,
+    topSpeedKmh: 356,
+    accelRate: 36,
+    handling: 1.48,
+    driftGrip: 0.92,
+    nitroBoost: 1.40,
+    massKg: 1040,
+    description: 'Twin-turbo V6 hybrid Le Mans prototype with full-length shark fin and 350+ km/h top end.',
+  },
+  {
+    id: 'monza_spider',
+    name: 'Monza Stradale V12 Spider',
+    category: 'Open-Cockpit Italian Exotic',
+    bodyStyle: 'supercar',
+    primaryColor: 0xeab308, // Giallo Modena Pearl Yellow
+    secondaryColor: 0x18181b, // Nero Carbon
+    accentColor: 0xf97316,
+    rimColor: 0xd4d4d8,
+    topSpeedKmh: 346,
+    accelRate: 32,
+    handling: 1.36,
+    driftGrip: 0.84,
+    nitroBoost: 1.34,
+    massKg: 1390,
+    description: 'Pure atmospheric 6.5L V12 open-top barchetta with twin aerodynamic headrest fairings.',
+  },
+  {
+    id: 'sandstorm_raid',
+    name: 'Sandstorm Dakar Trophy 4x4',
+    category: 'Desert Raid Trophy Truck',
+    bodyStyle: 'muscle',
+    primaryColor: 0xd97706, // Tactical Dune Tan
+    secondaryColor: 0x1e293b, // Gunmetal Slate
+    accentColor: 0xf97316,
+    rimColor: 0x111827,
+    topSpeedKmh: 294,
+    accelRate: 32,
+    handling: 1.18,
+    driftGrip: 0.88,
+    nitroBoost: 1.45,
+    massKg: 1850,
+    description: 'Heavy-duty desert raid trophy machine with roof spotlight bar, brush bar, and rear spares.',
+  },
+  {
+    id: 'skyline_spec_r',
+    name: 'Kurogane Skyline R34 Spec-R',
+    category: 'JDM Midnight Wangan Legend',
+    bodyStyle: 'tuner',
+    primaryColor: 0x1d4ed8, // Midnight Bayside Blue
+    secondaryColor: 0x0f172a, // Deep Carbon
+    accentColor: 0x38bdf8,
+    rimColor: 0xd97706, // Bronze Forged
+    topSpeedKmh: 326,
+    accelRate: 33,
+    handling: 1.44,
+    driftGrip: 0.70,
+    nitroBoost: 1.40,
+    massKg: 1330,
+    description: 'Twin-turbo straight-six Japanese legend tuned for 9000 RPM high-speed expressway drifting.',
+  },
+  {
+    id: 'nexus_pursuit',
+    name: 'Nexus Cyber-Interceptor Black',
+    category: 'Stealth High-Speed Interceptor',
+    bodyStyle: 'police',
+    primaryColor: 0x09090b, // Matte Stealth Obsidian
+    secondaryColor: 0x18181b, // Carbon Kevlar
+    accentColor: 0x06b6d4, // Cyan/Magenta Strobe
+    rimColor: 0x3f3f46,
+    topSpeedKmh: 338,
+    accelRate: 34,
+    handling: 1.30,
+    driftGrip: 0.82,
+    nitroBoost: 1.44,
+    massKg: 1580,
+    description: 'Next-gen stealth pursuit interceptor with integrated push bumper and cybernetic strobe bar.',
+  },
+  {
+    id: 'silver_arrow_f1',
+    name: 'Silver Arrow Grand Prix GP-01',
+    category: 'Turbo-Hybrid Formula Grand Prix',
+    bodyStyle: 'formula',
+    primaryColor: 0xf1f5f9, // Liquid Chrome Silver
+    secondaryColor: 0x090d16, // Gloss Carbon Weave
+    accentColor: 0x14b8a6, // Petronas Emerald
+    rimColor: 0xfacc15,
+    topSpeedKmh: 362,
+    accelRate: 38,
+    handling: 1.58,
+    driftGrip: 0.96,
+    nitroBoost: 1.36,
+    massKg: 798,
+    description: 'Pinnacle motorsport single-seater with titanium halo, DRS wing flap, and maximum downforce.',
+  },
 ];
 
 /**
  * Default control points for Metro Downtown Circuit.
- * All 6 circuits start along (0, -90) -> (0, 0) -> (0, 95) so the starting grid & gantry
+ * All circuits start along (0, -Y) -> (0, 0) -> (0, +Y) so the starting grid & gantry
  * align cleanly on a straight boulevard heading +Z, then diverge into unique layouts.
  */
 export const CIRCUIT_CONTROL_POINTS: Array<[number, number]> = [
@@ -351,6 +453,166 @@ export const TRACK_CATALOG: Record<TrackId, TrackSpec> = {
     roadWidth: 18.5,
     targetLapTimeSec: 38,
   },
+  continental_highway: {
+    id: 'continental_highway',
+    name: 'Pacific Continental Expressway',
+    shortName: 'Pacific Highway',
+    subtitle: 'Endless Ocean Bridge Straightaway & High-Speed Coastal Sweepers',
+    difficulty: 'MEDIUM',
+    envKind: 'coastal',
+    controlPoints: [
+      [0, -180],
+      [0, 0],
+      [0, 260],
+      [45, 450],
+      [190, 580],
+      [390, 540],
+      [540, 370],
+      [560, 120],
+      [520, -160],
+      [390, -420],
+      [220, -560],
+      [40, -600],
+      [-110, -510],
+      [-80, -290],
+    ],
+    skyTopColor: 0x1e3a8a,
+    skyHorizonColor: 0x93c5fd,
+    sunDiscColor: 0xffffff,
+    fogColor: 0x93c5fd,
+    fogDensity: 0.00065,
+    sunColor: 0xffffff,
+    sunIntensity: 2.7,
+    hemiSkyColor: 0xbae6fd,
+    hemiGroundColor: 0x1e293b,
+    hemiIntensity: 1.1,
+    groundColor: 0x1e293b,
+    infieldColor: 0x0284c7,
+    foliageColors: [0x15803d, 0x166534, 0x047857],
+    archAccentColor: 0x06b6d4,
+    roadWidth: 22.0,
+    targetLapTimeSec: 52,
+  },
+  trans_sahara_speedway: {
+    id: 'trans_sahara_speedway',
+    name: 'Grand Sahara Desert Runway',
+    shortName: 'Desert Runway',
+    subtitle: 'Supersonic Salt-Flat Straight & Colossal Sandstone Mesas',
+    difficulty: 'EASY',
+    envKind: 'desert',
+    controlPoints: [
+      [0, -240],
+      [0, 0],
+      [0, 340],
+      [90, 560],
+      [270, 640],
+      [500, 550],
+      [640, 320],
+      [640, -120],
+      [640, -400],
+      [520, -610],
+      [290, -670],
+      [70, -600],
+      [-100, -460],
+      [-65, -310],
+    ],
+    skyTopColor: 0x0284c7,
+    skyHorizonColor: 0xfef3c7,
+    sunDiscColor: 0xffffff,
+    fogColor: 0xfef3c7,
+    fogDensity: 0.0005,
+    sunColor: 0xfffbeb,
+    sunIntensity: 2.9,
+    hemiSkyColor: 0x7dd3fc,
+    hemiGroundColor: 0x78350f,
+    hemiIntensity: 1.15,
+    groundColor: 0xb45309,
+    infieldColor: 0xd97706,
+    foliageColors: [0x4d7c0f, 0x65a30d, 0x3f6212],
+    archAccentColor: 0xf59e0b,
+    roadWidth: 23.0,
+    targetLapTimeSec: 55,
+  },
+  tokyo_wangan_express: {
+    id: 'tokyo_wangan_express',
+    name: 'Midnight Wangan Bay Expressway',
+    shortName: 'Wangan Express',
+    subtitle: 'Tokyo Bay Suspension Bridge & High-Velocity Midnight Artery',
+    difficulty: 'HARD',
+    envKind: 'cyber',
+    controlPoints: [
+      [0, -200],
+      [0, 0],
+      [0, 280],
+      [80, 480],
+      [250, 560],
+      [450, 500],
+      [590, 320],
+      [600, 60],
+      [550, -260],
+      [400, -500],
+      [190, -580],
+      [-20, -520],
+      [-115, -390],
+      [-70, -280],
+    ],
+    skyTopColor: 0x020617,
+    skyHorizonColor: 0x0f172a,
+    sunDiscColor: 0xf1f5f9,
+    fogColor: 0x0a0f1d,
+    fogDensity: 0.00075,
+    sunColor: 0x94a3b8,
+    sunIntensity: 1.4,
+    hemiSkyColor: 0x1e293b,
+    hemiGroundColor: 0x020617,
+    hemiIntensity: 0.95,
+    groundColor: 0x030712,
+    infieldColor: 0x090d16,
+    foliageColors: [0x164e63, 0x155e75, 0x0e7490],
+    archAccentColor: 0xf43f5e,
+    roadWidth: 20.5,
+    targetLapTimeSec: 53,
+  },
+  nordic_skyline_pass: {
+    id: 'nordic_skyline_pass',
+    name: 'Nordic Skyline Mountain Autobahn',
+    shortName: 'Nordic Skyline',
+    subtitle: 'Colossal Glacier Valley Straight & Downhill Gorge Viaducts',
+    difficulty: 'HARD',
+    envKind: 'alpine',
+    controlPoints: [
+      [0, -200],
+      [0, 0],
+      [0, 270],
+      [-80, 470],
+      [-250, 570],
+      [-480, 500],
+      [-600, 330],
+      [-620, 60],
+      [-560, -270],
+      [-400, -500],
+      [-190, -590],
+      [35, -530],
+      [90, -400],
+      [50, -280],
+    ],
+    skyTopColor: 0x0c4a6e,
+    skyHorizonColor: 0xbae6fd,
+    sunDiscColor: 0xffffff,
+    fogColor: 0xbae6fd,
+    fogDensity: 0.00095,
+    sunColor: 0xf0f9ff,
+    sunIntensity: 2.7,
+    hemiSkyColor: 0xe0f2fe,
+    hemiGroundColor: 0x1e293b,
+    hemiIntensity: 1.2,
+    groundColor: 0x1e293b,
+    infieldColor: 0x064e3b,
+    foliageColors: [0x065f46, 0x047857, 0x115e59],
+    archAccentColor: 0x10b981,
+    roadWidth: 21.0,
+    targetLapTimeSec: 54,
+  },
 };
 
 export const TRACK_LIST: TrackSpec[] = [
@@ -360,6 +622,10 @@ export const TRACK_LIST: TrackSpec[] = [
   TRACK_CATALOG.alpine_pass,
   TRACK_CATALOG.desert_dunes,
   TRACK_CATALOG.harbor_docks,
+  TRACK_CATALOG.continental_highway,
+  TRACK_CATALOG.trans_sahara_speedway,
+  TRACK_CATALOG.tokyo_wangan_express,
+  TRACK_CATALOG.nordic_skyline_pass,
 ];
 
 export const GAME_MODE_CATALOG: Record<GameModeId, GameModeSpec> = {
@@ -1304,6 +1570,12 @@ export function computeSafeMountainRing(
   const cx = waypoints.length > 0 ? sumX / waypoints.length : 0;
   const cz = waypoints.length > 0 ? sumZ / waypoints.length : 0;
 
+  let maxWpRadius = 0;
+  for (const wp of waypoints) {
+    const d = Math.hypot(wp.x - cx, wp.z - cz);
+    if (d > maxWpRadius) maxWpRadius = d;
+  }
+
   const placements: MountainPlacement[] = [];
   for (let i = 0; i < count; i++) {
     const angle = (i / count) * Math.PI * 2;
@@ -1318,7 +1590,7 @@ export function computeSafeMountainRing(
     const footprintRadius = baseGeometryRadius * maxScaleXZ * 1.42;
     const minRequiredDist = footprintRadius + roadWidth * 0.65 + 48;
 
-    let distFromCenter = 360 + (i % 3) * 38;
+    let distFromCenter = Math.max(360, maxWpRadius + footprintRadius + 55) + (i % 3) * 38;
     let mx = cx + dirX * distFromCenter;
     let mz = cz + dirZ * distFromCenter;
 
@@ -1327,7 +1599,7 @@ export function computeSafeMountainRing(
       minDistanceToWaypoints(mx, mz, waypoints) < minRequiredDist &&
       safetyIter < 40
     ) {
-      distFromCenter += 22;
+      distFromCenter += 25;
       mx = cx + dirX * distFromCenter;
       mz = cz + dirZ * distFromCenter;
       safetyIter++;

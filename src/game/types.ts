@@ -30,7 +30,11 @@ export type TrackId =
   | 'neon_night'
   | 'alpine_pass'
   | 'desert_dunes'
-  | 'harbor_docks';
+  | 'harbor_docks'
+  | 'continental_highway'
+  | 'trans_sahara_speedway'
+  | 'tokyo_wangan_express'
+  | 'nordic_skyline_pass';
 
 export type TrackEnvironmentKind =
   | 'metro'

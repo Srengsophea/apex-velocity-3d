@@ -44,10 +44,10 @@ function createSkyDomeTexture(spec: TrackSpec): THREE.CanvasTexture {
     const h = canvas.height;
     const horizonY = Math.floor(h * 0.50); // Exact sphere equator
 
-    const isNight = spec.id === 'neon_night';
+    const isNight = spec.id === 'neon_night' || spec.id === 'tokyo_wangan_express';
     const isStormy = spec.id === 'harbor_docks';
     const isSunset = spec.id === 'sunset_coast';
-    const isDesert = spec.id === 'desert_dunes';
+    const isDesert = spec.id === 'desert_dunes' || spec.id === 'trans_sahara_speedway';
 
     // 1. Photorealistic Atmospheric Zenith-to-Horizon Gradient
     const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
@@ -1664,12 +1664,15 @@ export function buildRacingWorld(
     const isNaturalMap =
       spec.envKind === 'alpine' || spec.envKind === 'desert';
     const isNight =
-      spec.id === 'neon_night' || spec.id === 'harbor_docks';
+      spec.id === 'neon_night' ||
+      spec.id === 'harbor_docks' ||
+      spec.id === 'tokyo_wangan_express';
 
-    // 1. Atmospheric Sky Dome (Radius 820 so horizon mountains sit comfortably inside)
+    // 1. Atmospheric Sky Dome (dynamically scaled to fit small circuits and giant expressways)
     const skyTex = createSkyDomeTexture(spec);
+    const domeRadius = Math.max(1200, totalLength * 0.55);
     const skyMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(820, 40, 28),
+      new THREE.SphereGeometry(domeRadius, 40, 28),
       new THREE.MeshBasicMaterial({
         map: skyTex,
         side: THREE.BackSide,

@@ -153,24 +153,43 @@ body.portrait-rotated #game-shell {
   align-items: center;
 }
 
-/* 6-Car Roster Strip */
-.car-Roster-strip {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+/* 12-Car Roster Strip (Smooth horizontal scroll) */
+.car-roster-strip {
+  display: flex;
+  overflow-x: auto;
   gap: 8px;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(245, 158, 11, 0.45) rgba(15, 23, 42, 0.6);
+}
+
+.car-roster-strip::-webkit-scrollbar {
+  height: 6px;
+}
+
+.car-roster-strip::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 3px;
+}
+
+.car-roster-strip::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.5);
+  border-radius: 3px;
 }
 
 .car-select-btn {
   background-color: rgba(24, 33, 52, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
-  padding: 6px 4px;
+  padding: 6px 8px;
   color: #cbd5e1;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
+  min-width: 92px;
+  flex-shrink: 0;
   transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), border-color 120ms ease, background-color 120ms ease;
 }
 
@@ -203,23 +222,42 @@ body.portrait-rotated #game-shell {
   max-width: 100%;
 }
 
-/* 6-Map Selector Strip with Mini SVG Circuit Layouts */
+/* 10-Map Selector Strip with Mini SVG Circuit Layouts (Smooth horizontal scroll) */
 .map-roster-strip {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  display: flex;
+  overflow-x: auto;
   gap: 8px;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.45) rgba(15, 23, 42, 0.6);
+}
+
+.map-roster-strip::-webkit-scrollbar {
+  height: 6px;
+}
+
+.map-roster-strip::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 3px;
+}
+
+.map-roster-strip::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.5);
+  border-radius: 3px;
 }
 
 .map-select-btn {
   background-color: rgba(16, 24, 40, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
-  padding: 6px 8px;
+  padding: 6px 10px;
   color: #cbd5e1;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 145px;
+  flex-shrink: 0;
   text-align: left;
   transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), border-color 120ms ease, background-color 120ms ease;
 }

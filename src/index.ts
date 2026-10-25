@@ -116,7 +116,7 @@ class ApexVelocityRacingScript extends xb.Script {
 
     camera.fov = 60;
     camera.near = 0.25;
-    camera.far = 960;
+    camera.far = 2800;
     camera.updateProjectionMatrix();
 
     // 2. Build Closed-Loop Circuit & 3D World for initial map

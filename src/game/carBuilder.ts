@@ -1627,6 +1627,125 @@ export function buildRealisticCar(
     bodyGroup.add(bullbar);
   }
 
+  // 10b. Custom Bespoke Body Features for New Competition Models:
+  if (spec.id === 'valkyrie_lmp') {
+    // Le Mans Roof Snorkel Induction Scoop & Full-Length Aerodynamic Shark Fin
+    const snorkelScoop = new THREE.Mesh(
+      new THREE.BoxGeometry(0.36, 0.22, 0.52),
+      secondaryMat,
+    );
+    snorkelScoop.position.set(0, 1.18, -0.42);
+    snorkelScoop.rotation.x = -0.15;
+
+    const lmpSharkFin = new THREE.Mesh(
+      new THREE.BoxGeometry(0.034, 0.44, 1.65),
+      secondaryMat,
+    );
+    lmpSharkFin.position.set(0, 1.05, -1.25);
+
+    const lmpBiPlaneWing = new THREE.Mesh(
+      new THREE.BoxGeometry(2.04, 0.042, 0.42),
+      paintMat,
+    );
+    lmpBiPlaneWing.position.set(0, 1.14, -2.05);
+
+    bodyGroup.add(snorkelScoop, lmpSharkFin, lmpBiPlaneWing);
+  } else if (spec.id === 'monza_spider') {
+    // Open-Cockpit Italian Barchetta: Twin Aerodynamic Headrest Fairing Cowls
+    for (const side of [-1, 1]) {
+      const cowlGeo = new THREE.ConeGeometry(0.24, 0.95, 16);
+      cowlGeo.rotateX(-Math.PI * 0.46);
+      const cowl = new THREE.Mesh(cowlGeo, paintMat);
+      cowl.position.set(side * 0.38, 0.88, -0.75);
+      bodyGroup.add(cowl);
+    }
+    const centerHexExhaust = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.14, 0.14, 0.28, 6),
+      titaniumMat,
+    );
+    centerHexExhaust.rotateX(Math.PI * 0.5);
+    centerHexExhaust.position.set(0, 0.44, -2.15);
+    bodyGroup.add(centerHexExhaust);
+  } else if (spec.id === 'sandstorm_raid') {
+    // Dakar Trophy 4x4: Heavy Front Steel Bullbar & Roof 4-Pod LED Lightbar & Twin Rear Spares
+    const roofRack = new THREE.Mesh(
+      new THREE.BoxGeometry(1.42, 0.08, 0.65),
+      darkTrimMat,
+    );
+    roofRack.position.set(0, 1.20, 0.32);
+    bodyGroup.add(roofRack);
+
+    for (let p = 0; p < 4; p++) {
+      const podX = -0.48 + p * 0.32;
+      const podHousing = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.08, 0.08, 0.09, 16),
+        darkTrimMat,
+      );
+      podHousing.rotateX(Math.PI * 0.5);
+      podHousing.position.set(podX, 1.28, 0.34);
+      const podLens = new THREE.Mesh(
+        new THREE.CircleGeometry(0.07, 16),
+        new THREE.MeshBasicMaterial({ color: 0xfef08a }),
+      );
+      podLens.position.set(podX, 1.28, 0.386);
+      bodyGroup.add(podHousing, podLens);
+    }
+
+    // Twin Rear Mounted Spare Tires
+    for (const sx of [-0.42, 0.42]) {
+      const spareTire = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.32, 0.32, 0.24, 24),
+        tireMat,
+      );
+      spareTire.rotation.x = 0.35;
+      spareTire.position.set(sx, 0.62, -1.60);
+      bodyGroup.add(spareTire);
+    }
+  } else if (spec.id === 'skyline_spec_r') {
+    // JDM Kurogane GT-R: Carbon Dual-Element GT Aero Wing & Aggressive Hood Vents
+    const gtrHoodScoop = new THREE.Mesh(
+      new THREE.BoxGeometry(0.48, 0.04, 0.32),
+      secondaryMat,
+    );
+    gtrHoodScoop.position.set(0, 0.56, 1.25);
+    gtrHoodScoop.rotation.x = 0.22;
+    bodyGroup.add(gtrHoodScoop);
+
+    // Front Bumper Dual Canard Dive Planes
+    for (const side of [-1, 1]) {
+      const upperCanard = new THREE.Mesh(
+        new THREE.BoxGeometry(0.24, 0.018, 0.22),
+        secondaryMat,
+      );
+      upperCanard.position.set(side * 0.94, 0.38, 1.95);
+      upperCanard.rotation.y = side * 0.34;
+      upperCanard.rotation.x = 0.28;
+      bodyGroup.add(upperCanard);
+    }
+  } else if (spec.id === 'nexus_pursuit') {
+    // Stealth Tactical Cyber-Interceptor: Heavy Reinforced Push Bar
+    const heavyPushBumper = new THREE.Mesh(
+      new THREE.BoxGeometry(1.52, 0.44, 0.16),
+      darkTrimMat,
+    );
+    heavyPushBumper.position.set(0, 0.34, 2.28);
+    bodyGroup.add(heavyPushBumper);
+  } else if (spec.id === 'silver_arrow_f1') {
+    // Formula Single-Seater: Titanium Halo Cockpit Safety Ring
+    const haloLoop = new THREE.Mesh(
+      new THREE.TorusGeometry(0.32, 0.032, 12, 24, Math.PI),
+      titaniumMat,
+    );
+    haloLoop.rotation.x = -Math.PI * 0.42;
+    haloLoop.position.set(0, 0.78, 0.22);
+    const haloCenterPost = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.024, 0.028, 0.36, 12),
+      titaniumMat,
+    );
+    haloCenterPost.position.set(0, 0.72, 0.50);
+    bodyGroup.add(haloLoop, haloCenterPost);
+  }
+
   // 11. Four Solid High-Performance Wheels (Solid 3D Tire, Alloy Rim, Disc Rotor, Static Caliper & Suspension Axle)
   const wheelMeshes: THREE.Object3D[] = [];
   const frontLeftWheelPivot = new THREE.Group();
