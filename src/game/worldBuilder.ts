@@ -401,74 +401,59 @@ function createTerrainGrassTexture(
           const basinW = w0 - dykeWidth * 2;
           const basinH = h0 - dykeWidth * 2;
 
-          if (seed < 0.48) {
+          if (seed < 0.72) {
             // Emerald Lush Young Rice Paddy (matching vibrant green fields in reference photo)
             const emeraldGrad = ctx.createLinearGradient(basinX, basinY, basinX + basinW, basinY + basinH);
-            emeraldGrad.addColorStop(0, '#2d6a26');
-            emeraldGrad.addColorStop(0.5, '#3b8226');
-            emeraldGrad.addColorStop(1, '#275d21');
+            const isDarker = seed < 0.36;
+            emeraldGrad.addColorStop(0, isDarker ? '#275e21' : '#327329');
+            emeraldGrad.addColorStop(0.5, isDarker ? '#347b2b' : '#3f8d34');
+            emeraldGrad.addColorStop(1, isDarker ? '#22521c' : '#2b6623');
             ctx.fillStyle = emeraldGrad;
             ctx.fillRect(basinX, basinY, basinW, basinH);
 
             // Continuous parallel linear crop planting rows (fine agricultural furrows)
-            const isHorizontal = seed > 0.24;
+            const isHorizontal = seed > 0.36;
             if (isHorizontal) {
               for (let py = basinY + 4; py < basinY + basinH - 4; py += 6) {
-                ctx.fillStyle = 'rgba(74, 222, 128, 0.22)';
-                ctx.fillRect(basinX + 2, py, basinW - 4, 2);
-                ctx.fillStyle = 'rgba(15, 45, 12, 0.25)';
-                ctx.fillRect(basinX + 2, py + 2, basinW - 4, 1.5);
+                ctx.fillStyle = 'rgba(74, 222, 128, 0.20)';
+                ctx.fillRect(basinX + 2, py, basinW - 4, 1.8);
+                ctx.fillStyle = 'rgba(15, 45, 12, 0.22)';
+                ctx.fillRect(basinX + 2, py + 1.8, basinW - 4, 1.4);
               }
             } else {
               for (let px = basinX + 4; px < basinX + basinW - 4; px += 6) {
-                ctx.fillStyle = 'rgba(74, 222, 128, 0.22)';
-                ctx.fillRect(px, basinY + 2, 2, basinH - 4);
-                ctx.fillStyle = 'rgba(15, 45, 12, 0.25)';
-                ctx.fillRect(px + 2, basinY + 2, 1.5, basinH - 4);
+                ctx.fillStyle = 'rgba(74, 222, 128, 0.20)';
+                ctx.fillRect(px, basinY + 2, 1.8, basinH - 4);
+                ctx.fillStyle = 'rgba(15, 45, 12, 0.22)';
+                ctx.fillRect(px + 1.8, basinY + 2, 1.4, basinH - 4);
               }
             }
-          } else if (seed < 0.86) {
-            // Golden Mature Harvest Rice Field (matching golden fields in reference photo)
+          } else {
+            // Golden Mature Harvest Rice Field (warm natural straw golden grain)
             const goldGrad = ctx.createLinearGradient(basinX, basinY, basinX + basinW, basinY + basinH);
-            goldGrad.addColorStop(0, '#b47805');
-            goldGrad.addColorStop(0.5, '#ca8a04');
-            goldGrad.addColorStop(1, '#a16207');
+            goldGrad.addColorStop(0, '#a87820');
+            goldGrad.addColorStop(0.5, '#c29235');
+            goldGrad.addColorStop(1, '#946618');
             ctx.fillStyle = goldGrad;
             ctx.fillRect(basinX, basinY, basinW, basinH);
 
             // Sunlit golden crop shimmer rows
-            const isHorizontal = seed > 0.65;
+            const isHorizontal = seed > 0.85;
             if (isHorizontal) {
               for (let py = basinY + 4; py < basinY + basinH - 4; py += 5) {
-                ctx.fillStyle = 'rgba(254, 240, 138, 0.28)';
-                ctx.fillRect(basinX + 2, py, basinW - 4, 2);
-                ctx.fillStyle = 'rgba(113, 63, 18, 0.22)';
-                ctx.fillRect(basinX + 2, py + 2, basinW - 4, 1.5);
+                ctx.fillStyle = 'rgba(254, 240, 138, 0.25)';
+                ctx.fillRect(basinX + 2, py, basinW - 4, 1.8);
+                ctx.fillStyle = 'rgba(113, 63, 18, 0.20)';
+                ctx.fillRect(basinX + 2, py + 1.8, basinW - 4, 1.4);
               }
             } else {
               for (let px = basinX + 4; px < basinX + basinW - 4; px += 5) {
-                ctx.fillStyle = 'rgba(254, 240, 138, 0.28)';
-                ctx.fillRect(px, basinY + 2, 2, basinH - 4);
-                ctx.fillStyle = 'rgba(113, 63, 18, 0.22)';
-                ctx.fillRect(px + 2, basinY + 2, 1.5, basinH - 4);
+                ctx.fillStyle = 'rgba(254, 240, 138, 0.25)';
+                ctx.fillRect(px, basinY + 2, 1.8, basinH - 4);
+                ctx.fillStyle = 'rgba(113, 63, 18, 0.20)';
+                ctx.fillRect(px + 1.8, basinY + 2, 1.4, basinH - 4);
               }
             }
-          } else {
-            // Flooded Terraced Water Basin (Reflecting Sky Sheen & Emerging Rice)
-            const waterGrad = ctx.createLinearGradient(basinX, basinY, basinX, basinY + basinH);
-            waterGrad.addColorStop(0, '#153822');
-            waterGrad.addColorStop(0.4, '#1c4a2d');
-            waterGrad.addColorStop(1, '#122e1b');
-            ctx.fillStyle = waterGrad;
-            ctx.fillRect(basinX, basinY, basinW, basinH);
-
-            // Sky sheen reflection
-            const skySheen = ctx.createLinearGradient(basinX, basinY, basinX + basinW, basinY);
-            skySheen.addColorStop(0, 'rgba(186, 230, 253, 0.16)');
-            skySheen.addColorStop(0.5, 'rgba(125, 211, 252, 0.26)');
-            skySheen.addColorStop(1, 'rgba(186, 230, 253, 0.14)');
-            ctx.fillStyle = skySheen;
-            ctx.fillRect(basinX, basinY, basinW, basinH);
           }
         }
       }
@@ -651,6 +636,61 @@ function createFoliageLeafTexture(maxAnisotropy: number): THREE.CanvasTexture {
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.RepeatWrapping;
+  tex.anisotropy = maxAnisotropy;
+  return tex;
+}
+
+/**
+ * Procedural Tropical River Water Texture (512x512)
+ * Deep emerald/olive river water with organic wave ripples, caustics, and subtle sun glints.
+ */
+function createRiverWaterTexture(maxAnisotropy: number): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    // 1. Deep tropical olive-emerald water base
+    const grad = ctx.createLinearGradient(0, 0, 512, 512);
+    grad.addColorStop(0, '#103822');
+    grad.addColorStop(0.5, '#194d32');
+    grad.addColorStop(1, '#0e301d');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 512, 512);
+
+    // 2. Soft organic water ripples and gentle caustic highlights
+    for (let y = 0; y < 512; y += 10) {
+      ctx.strokeStyle = y % 20 === 0 ? 'rgba(186, 230, 253, 0.22)' : 'rgba(74, 222, 128, 0.16)';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      for (let x = 0; x < 512; x += 32) {
+        const waveY = y + Math.sin(x * 0.05 + y * 0.08) * 3.2;
+        if (x === 0) ctx.moveTo(x, waveY);
+        else ctx.lineTo(x, waveY);
+      }
+      ctx.stroke();
+    }
+
+    // 3. Subtle dappled sky reflections
+    for (let i = 0; i < 80; i++) {
+      const rx = (i * 97) % 512;
+      const ry = (i * 139) % 512;
+      const rad = 12 + (i % 5) * 8;
+      const rGrad = ctx.createRadialGradient(rx, ry, 2, rx, ry, rad);
+      rGrad.addColorStop(0, 'rgba(254, 240, 138, 0.18)');
+      rGrad.addColorStop(0.5, 'rgba(125, 211, 252, 0.10)');
+      rGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = rGrad;
+      ctx.beginPath();
+      ctx.arc(rx, ry, rad, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(2, 6);
   tex.anisotropy = maxAnisotropy;
   return tex;
 }
@@ -1950,42 +1990,51 @@ function buildOpenThatchedShedGeometry(): THREE.BufferGeometry {
   return merged;
 }
 
-function buildRiversideWoodenBridgeGeometry(): THREE.BufferGeometry {
+function buildRiversideWoodenBridgeGeometry(bridgeLength = 22): THREE.BufferGeometry {
   const parts: THREE.BufferGeometry[] = [];
 
-  // Deck Planking (22m long, 2.5m wide, gently arched over water at natural height)
-  const deck = new THREE.BoxGeometry(22, 0.22, 2.5);
-  deck.translate(0, 0.72, 0);
+  // Deck Planking (22m long along Z, 2.4m wide along X, elevated over water)
+  const deck = new THREE.BoxGeometry(2.4, 0.24, bridgeLength);
+  deck.translate(0, 0.85, 0);
   parts.push(deck);
 
-  // Parapets / Handrails (matching rustic wooden footbridge in reference photo)
-  const railL = new THREE.BoxGeometry(22, 0.14, 0.12);
-  railL.translate(0, 1.55, -1.15);
-  const railR = new THREE.BoxGeometry(22, 0.14, 0.12);
-  railR.translate(0, 1.55, 1.15);
+  // Approach ramps on near and far banks sloping to ground level
+  const rampNear = new THREE.BoxGeometry(2.4, 0.22, 2.6);
+  rampNear.rotateX(0.22);
+  rampNear.translate(0, 0.42, -bridgeLength * 0.5 - 1.1);
+  const rampFar = new THREE.BoxGeometry(2.4, 0.22, 2.6);
+  rampFar.rotateX(-0.22);
+  rampFar.translate(0, 0.42, bridgeLength * 0.5 + 1.1);
+  parts.push(rampNear, rampFar);
+
+  // Parapets / Handrails (running along Z)
+  const railL = new THREE.BoxGeometry(0.14, 0.14, bridgeLength + 1.6);
+  railL.translate(-1.15, 1.65, 0);
+  const railR = new THREE.BoxGeometry(0.14, 0.14, bridgeLength + 1.6);
+  railR.translate(1.15, 1.65, 0);
   parts.push(railL, railR);
 
   // Vertical Baluster Posts along rails
-  for (let x = -10; x <= 10; x += 2.0) {
+  for (let z = -bridgeLength * 0.48; z <= bridgeLength * 0.48; z += 1.6) {
     const pL = new THREE.BoxGeometry(0.1, 0.85, 0.1);
-    pL.translate(x, 1.15, -1.15);
+    pL.translate(-1.15, 1.25, z);
     const pR = new THREE.BoxGeometry(0.1, 0.85, 0.1);
-    pR.translate(x, 1.15, 1.15);
+    pR.translate(1.15, 1.25, z);
     parts.push(pL, pR);
   }
 
   // Cross-braced Timber Trestle Pier Bents in the riverbed
-  for (const px of [-6.5, 0, 6.5]) {
-    const pierL = new THREE.CylinderGeometry(0.18, 0.22, 1.6, 8);
-    pierL.translate(px, 0.1, -1.0);
-    const pierR = new THREE.CylinderGeometry(0.18, 0.22, 1.6, 8);
-    pierR.translate(px, 0.1, 1.0);
-    const crossBeam = new THREE.BoxGeometry(0.24, 0.26, 2.6);
-    crossBeam.translate(px, 0.58, 0);
+  for (const pz of [-bridgeLength * 0.35, -bridgeLength * 0.12, bridgeLength * 0.12, bridgeLength * 0.35]) {
+    const pierL = new THREE.CylinderGeometry(0.18, 0.22, 1.8, 8);
+    pierL.translate(-0.95, 0.1, pz);
+    const pierR = new THREE.CylinderGeometry(0.18, 0.22, 1.8, 8);
+    pierR.translate(0.95, 0.1, pz);
+    const crossBeam = new THREE.BoxGeometry(2.4, 0.24, 0.26);
+    crossBeam.translate(0, 0.72, pz);
     // Diagonal cross brace
-    const diag = new THREE.BoxGeometry(0.1, 1.4, 0.1);
-    diag.rotateX(Math.PI * 0.25);
-    diag.translate(px, 0.25, 0);
+    const diag = new THREE.BoxGeometry(2.2, 0.1, 0.1);
+    diag.rotateZ(Math.PI * 0.25);
+    diag.translate(0, 0.35, pz);
     parts.push(pierL, pierR, crossBeam, diag);
   }
 
@@ -2440,6 +2489,7 @@ export function buildRacingWorld(
   const thatchRoofTex = createThatchedRoofTexture();
   const markerPostTex = createRoadsideMarkerPostTexture();
   const tropicalMountainTex = createTropicalMountainTexture(maxAnisotropy);
+  const riverWaterTex = createRiverWaterTexture(maxAnisotropy);
 
   const pineTreeGeos = buildDetailedTreeGeometries('pine');
   const oakTreeGeos = buildDetailedTreeGeometries('oak');
@@ -3288,6 +3338,7 @@ export function buildRacingWorld(
       for (let i = 4; i < waypoints.length; i += 10) {
         const wp = waypoints[i];
         for (const side of [-1, 1]) {
+          if (side > 0 && i >= 2 && i <= 48) continue;
           const bDist = spec.roadWidth * 0.54 + 4.5 + ((i * 3) % 4);
           bananaCoords.push({
             x: wp.x + wp.nx * side * bDist,
@@ -3335,7 +3386,10 @@ export function buildRacingWorld(
 
       for (let i = 32; i < waypoints.length; i += 18) {
         const wp = waypoints[i];
-        const side = (i / 18) % 2 === 0 ? -1 : 1;
+        let side = (i / 18) % 2 === 0 ? -1 : 1;
+        if (isCountryside && i <= 44) {
+          side = -1;
+        }
         const distOut = spec.roadWidth * 0.54 + 20 + ((i * 5) % 12);
         const sx = wp.x + wp.nx * side * distOut;
         const sz = wp.z + wp.nz * side * distOut;
@@ -3414,56 +3468,108 @@ export function buildRacingWorld(
       trackContentGroup.add(tractorInst);
 
       // 7. Reflective Riverside Canal with Sunlight Sheen & Rustic Wooden Trestle Footbridge
-      const riverStart = Math.min(8, waypoints.length - 1);
-      const riverEnd = Math.min(40, waypoints.length - 1);
+      const riverStart = Math.min(2, waypoints.length - 1);
+      const riverEnd = Math.min(46, waypoints.length - 1);
       const canalSegs = riverEnd - riverStart;
 
       if (canalSegs > 4) {
         const riverPos: number[] = [];
+        const riverUvs: number[] = [];
         const riverIndices: number[] = [];
+
+        // Dual sloping earthen riverbank geometries (inner verge bank & outer paddy dyke)
+        const bankPos: number[] = [];
+        const bankIndices: number[] = [];
+
+        const innerBaseOffset = spec.roadWidth * 0.54 + 5.8;
 
         for (let i = riverStart; i <= riverEnd; i++) {
           const wp = waypoints[i];
-          const taperIn = Math.min(1, (i - riverStart) / 3);
-          const taperOut = Math.min(1, (riverEnd - i) / 3);
-          const taper = Math.max(0.08, Math.min(taperIn, taperOut));
+          const taperIn = Math.min(1, Math.max(0, (i - riverStart) / 6));
+          const taperOut = Math.min(1, Math.max(0, (riverEnd - i) / 6));
+          const taper = Math.sin(Math.min(taperIn, taperOut) * Math.PI * 0.5);
 
-          const innerOffset = spec.roadWidth * 0.54 + 5.5 + (1 - taper) * 4;
-          const outerOffset = innerOffset + 20.0 * taper;
+          const canalWidth = 18.0 * taper;
+          const innerOffset = innerBaseOffset;
+          const outerOffset = innerOffset + canalWidth;
 
           const inX = wp.x + wp.nx * innerOffset;
           const inZ = wp.z + wp.nz * innerOffset;
           const outX = wp.x + wp.nx * outerOffset;
           const outZ = wp.z + wp.nz * outerOffset;
 
-          riverPos.push(inX, 0.05, inZ);
-          riverPos.push(outX, 0.05, outZ);
+          const waterY = 0.04;
+          riverPos.push(inX, waterY, inZ);
+          riverPos.push(outX, waterY, outZ);
 
-          const idx = (i - riverStart) * 2;
+          const v = (i - riverStart) * 0.38;
+          riverUvs.push(0, v);
+          riverUvs.push(1, v);
+
+          const rIdx = (i - riverStart) * 2;
           if (i < riverEnd) {
-            riverIndices.push(idx, idx + 1, idx + 2);
-            riverIndices.push(idx + 1, idx + 3, idx + 2);
+            riverIndices.push(rIdx, rIdx + 1, rIdx + 2);
+            riverIndices.push(rIdx + 1, rIdx + 3, rIdx + 2);
+          }
+
+          // 1. Inner sloping bank (road verge down to canal water edge)
+          const vergeInX = wp.x + wp.nx * (spec.roadWidth * 0.54 + 4.2);
+          const vergeInZ = wp.z + wp.nz * (spec.roadWidth * 0.54 + 4.2);
+          bankPos.push(vergeInX, 0.025, vergeInZ);
+          bankPos.push(inX, waterY - 0.015, inZ);
+
+          // 2. Outer sloping bank (canal water edge up to rice paddy dyke)
+          const outerDykeDist = outerOffset + 2.4 * Math.max(0.2, taper);
+          const outerRidgeX = wp.x + wp.nx * outerDykeDist;
+          const outerRidgeZ = wp.z + wp.nz * outerDykeDist;
+          bankPos.push(outX, waterY - 0.015, outZ);
+          bankPos.push(outerRidgeX, 0.028, outerRidgeZ);
+
+          const bIdx = (i - riverStart) * 4;
+          if (i < riverEnd) {
+            // Inner bank quad
+            bankIndices.push(bIdx, bIdx + 1, bIdx + 4);
+            bankIndices.push(bIdx + 1, bIdx + 5, bIdx + 4);
+            // Outer bank quad
+            bankIndices.push(bIdx + 2, bIdx + 3, bIdx + 6);
+            bankIndices.push(bIdx + 3, bIdx + 7, bIdx + 6);
           }
         }
 
         const riverGeo = new THREE.BufferGeometry();
         riverGeo.setAttribute('position', new THREE.Float32BufferAttribute(riverPos, 3));
+        riverGeo.setAttribute('uv', new THREE.Float32BufferAttribute(riverUvs, 2));
         riverGeo.setIndex(riverIndices);
         riverGeo.computeVertexNormals();
 
         const riverMat = new THREE.MeshStandardMaterial({
-          color: 0x163828, // Tropical deep green reflective river water
-          roughness: 0.62,
-          metalness: 0.02,
+          map: riverWaterTex,
+          color: 0x1f5438, // Tropical deep green reflective river water
+          roughness: 0.18,
+          metalness: 0.35,
         });
         const riverMesh = new THREE.Mesh(riverGeo, riverMat);
         riverMesh.receiveShadow = true;
         trackContentGroup.add(riverMesh);
 
+        // Natural earthen dual-sided canal embankment
+        const bankGeo = new THREE.BufferGeometry();
+        bankGeo.setAttribute('position', new THREE.Float32BufferAttribute(bankPos, 3));
+        bankGeo.setIndex(bankIndices);
+        bankGeo.computeVertexNormals();
+        const bankMat = new THREE.MeshStandardMaterial({
+          color: 0x362314, // moist rich riverbank loam
+          roughness: 0.95,
+          metalness: 0.02,
+        });
+        const bankMesh = new THREE.Mesh(bankGeo, bankMat);
+        bankMesh.receiveShadow = true;
+        trackContentGroup.add(bankMesh);
+
         // Rustic Multi-Span Timber Trestle Footbridge crossing the canal (matching photo)
         const wpBridge = waypoints[Math.min(18, waypoints.length - 1)];
-        const bridgeCenterX = wpBridge.x + wpBridge.nx * (spec.roadWidth * 0.54 + 15.5);
-        const bridgeCenterZ = wpBridge.z + wpBridge.nz * (spec.roadWidth * 0.54 + 15.5);
+        const bridgeCenterX = wpBridge.x + wpBridge.nx * (innerBaseOffset + 9.0);
+        const bridgeCenterZ = wpBridge.z + wpBridge.nz * (innerBaseOffset + 9.0);
         const bridgeRotY = Math.atan2(wpBridge.nx, wpBridge.nz);
 
         const bridgeMat = new THREE.MeshStandardMaterial({
@@ -3485,9 +3591,9 @@ export function buildRacingWorld(
           metalness: 0.08,
         }));
         farBankHouse.position.set(
-          wpBridge.x + wpBridge.nx * (spec.roadWidth * 0.54 + 32),
+          wpBridge.x + wpBridge.nx * (innerBaseOffset + 22.5),
           0,
-          wpBridge.z + wpBridge.nz * (spec.roadWidth * 0.54 + 32),
+          wpBridge.z + wpBridge.nz * (innerBaseOffset + 22.5),
         );
         farBankHouse.rotation.set(0, bridgeRotY + Math.PI * 0.25, 0);
         farBankHouse.castShadow = !isSoftwareGl;
@@ -3704,7 +3810,10 @@ export function buildRacingWorld(
       const wp = waypoints[i];
       for (const side of [-1, 1]) {
         for (let row = 0; row < 2; row++) {
-          const distOut = minGrassDist + row * 1.9 + ((i * 7 + row * 3) % 2.4);
+          let distOut = minGrassDist + row * 1.9 + ((i * 7 + row * 3) % 2.4);
+          if (isCountryside && side > 0 && i >= 2 && i <= 48) {
+            distOut = Math.min(distOut, spec.roadWidth * 0.54 + 4.0);
+          }
           const gx = wp.x + wp.nx * side * distOut;
           const gz = wp.z + wp.nz * side * distOut;
           if (minDistanceToWaypoints(gx, gz, waypoints) >= minGrassDist) {
@@ -3770,7 +3879,10 @@ export function buildRacingWorld(
     for (let i = 0; i < waypoints.length; i += 2) {
       const wp = waypoints[i];
       for (const side of [-1, 1]) {
-        const distOut = safeTreeDist + 1.5 + ((i * 5) % 8);
+        let distOut = safeTreeDist + 1.5 + ((i * 5) % 8);
+        if (isCountryside && side > 0 && i >= 2 && i <= 48) {
+          distOut = spec.roadWidth * 0.54 + 28.5 + ((i * 3) % 8);
+        }
         const tx = wp.x + wp.nx * side * distOut;
         const tz = wp.z + wp.nz * side * distOut;
         if (minDistanceToWaypoints(tx, tz, waypoints) >= safeTreeDist) {
