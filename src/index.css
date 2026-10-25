@@ -1,0 +1,1051 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #090d16;
+  color: #f8fafc;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+canvas {
+  display: block;
+}
+
+.font-display {
+  font-family: 'Chakra Petch', sans-serif;
+}
+
+.font-mono-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Game Shell Overlay Root */
+#game-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Automatic Landscape Rotation when a mobile device is held in Portrait */
+body.portrait-rotated .webgl-main-canvas,
+body.portrait-rotated #game-shell {
+  position: fixed !important;
+  top: 0 !important;
+  left: 100vw !important;
+  width: 100vh !important;
+  height: 100vw !important;
+  transform-origin: top left !important;
+  transform: rotate(90deg) !important;
+}
+
+.interactive {
+  pointer-events: auto;
+}
+
+/* Damage / Low-Grip Peripheral Vignette */
+#damage-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 15;
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+  box-shadow: inset 0 0 90px 28px rgba(239, 68, 68, 0.72);
+}
+
+/* Title Screen Layout */
+#title-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 28px 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(9, 13, 22, 0.68) 0%,
+    rgba(9, 13, 22, 0.04) 32%,
+    rgba(9, 13, 22, 0.1) 56%,
+    rgba(9, 13, 22, 0.94) 100%
+  );
+}
+
+.title-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.title-top-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.title-bottom-dock {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: rgba(11, 16, 28, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  padding: 12px 18px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dock-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.selector-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.row-section-tag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.showroom-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 220px;
+  gap: 16px;
+  align-items: center;
+}
+
+/* 6-Car Roster Strip */
+.car-Roster-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.car-select-btn {
+  background-color: rgba(24, 33, 52, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 6px 4px;
+  color: #cbd5e1;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), border-color 120ms ease, background-color 120ms ease;
+}
+
+.car-select-btn:hover {
+  background-color: rgba(36, 49, 76, 0.96);
+  color: #ffffff;
+}
+
+.car-select-btn.active {
+  background-color: rgba(30, 41, 68, 0.98);
+  border-color: #f59e0b;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.22);
+}
+
+.car-swatch {
+  width: 28px;
+  height: 8px;
+  border-radius: 3px;
+}
+
+.car-btn-name {
+  font-size: 10.5px;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* 6-Map Selector Strip with Mini SVG Circuit Layouts */
+.map-roster-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.map-select-btn {
+  background-color: rgba(16, 24, 40, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 6px 8px;
+  color: #cbd5e1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), border-color 120ms ease, background-color 120ms ease;
+}
+
+.map-select-btn:hover {
+  background-color: rgba(30, 41, 68, 0.96);
+  color: #ffffff;
+}
+
+.map-select-btn.active {
+  background-color: rgba(23, 37, 84, 0.96);
+  border-color: #38bdf8;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(56, 189, 248, 0.24);
+}
+
+.map-mini-svg {
+  width: 34px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.map-btn-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.map-btn-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.map-btn-diff {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #38bdf8;
+  text-transform: uppercase;
+}
+
+.spec-bars-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 14px;
+  row-gap: 6px;
+  margin-top: 2px;
+}
+
+.spec-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.spec-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.spec-bar-track {
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.spec-bar-fill {
+  height: 100%;
+  background-color: #f59e0b;
+  border-radius: 3px;
+  transition: width 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.options-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.segmented-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.segmented-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  width: 64px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.segmented-group {
+  display: flex;
+  flex: 1;
+  background-color: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.seg-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.seg-btn:hover {
+  color: #f8fafc;
+}
+
+.seg-btn.active {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.start-cta-btn {
+  width: 100%;
+  height: 58px;
+  background-color: #f59e0b;
+  color: #090d16;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), background-color 120ms ease;
+}
+
+.start-cta-btn:hover {
+  background-color: #fbbf24;
+  transform: translateY(-2px);
+}
+
+.start-cta-btn:active {
+  transform: translateY(0);
+}
+
+.control-hint-line {
+  text-align: center;
+  font-size: 11px;
+  color: #94a3b8;
+  letter-spacing: 0.02em;
+}
+
+/* Playing HUD */
+#playing-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+  pointer-events: none;
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 18px;
+}
+
+.hud-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+/* Top-Left Telemetry Cluster */
+.hud-telemetry-card {
+  background-color: rgba(9, 13, 22, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.hud-stat-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-kicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.hud-hero-val {
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-hero-val.accent {
+  color: #f59e0b;
+}
+
+.hud-divider {
+  width: 1px;
+  height: 32px;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Top-Right Live Map & Utility Buttons */
+.hud-right-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.hud-utility-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: auto;
+}
+
+.util-icon-btn {
+  height: 36px;
+  min-width: 36px;
+  padding: 0 10px;
+  background-color: rgba(9, 13, 22, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9px;
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.util-icon-btn:hover {
+  background-color: rgba(30, 41, 68, 0.95);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.minimap-frame {
+  background-color: rgba(9, 13, 22, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  padding: 7px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Bottom Controls & Speedometer Row */
+.hud-bottom-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+/* Left Mobile / Touch Steering Controller */
+.steer-controller-zone {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.wheel-touch-area {
+  width: 138px;
+  height: 138px;
+  border-radius: 50%;
+  background-color: rgba(9, 13, 22, 0.82);
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  position: relative;
+}
+
+.wheel-touch-area:active {
+  cursor: grabbing;
+  border-color: #f59e0b;
+}
+
+.dpad-buttons-row {
+  display: flex;
+  gap: 12px;
+}
+
+.steer-pad-btn {
+  width: 74px;
+  height: 74px;
+  background-color: rgba(9, 13, 22, 0.88);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.steer-pad-btn.pressed,
+.steer-pad-btn:active {
+  background-color: rgba(37, 99, 235, 0.85);
+  border-color: #60a5fa;
+  transform: scale(0.96);
+}
+
+.joystick-base {
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background-color: rgba(9, 13, 22, 0.84);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.joystick-knob {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: #f59e0b;
+  border: 3px solid #fef08a;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.tilt-steer-box {
+  background-color: rgba(9, 13, 22, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  padding: 12px 14px;
+  width: 184px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Right Pedals + Speedometer Cluster */
+.pedals-and-gauge-zone {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  pointer-events: auto;
+}
+
+.action-pedals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 72px);
+  gap: 8px;
+}
+
+.pedal-btn {
+  height: 58px;
+  background-color: rgba(9, 13, 22, 0.88);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #f8fafc;
+  font-family: 'Chakra Petch', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  touch-action: none;
+}
+
+.pedal-btn.gas {
+  border-color: rgba(16, 185, 129, 0.55);
+  background-color: rgba(6, 78, 59, 0.72);
+}
+
+.pedal-btn.brake {
+  border-color: rgba(239, 68, 68, 0.55);
+  background-color: rgba(127, 29, 29, 0.72);
+}
+
+.pedal-btn.nitro {
+  border-color: rgba(6, 182, 212, 0.65);
+  background-color: rgba(14, 116, 144, 0.72);
+}
+
+.pedal-btn.drift {
+  border-color: rgba(245, 158, 11, 0.65);
+  background-color: rgba(120, 53, 15, 0.72);
+}
+
+.pedal-sub {
+  font-size: 9px;
+  opacity: 0.85;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.pedal-btn.pressed,
+.pedal-btn:active {
+  transform: scale(0.95);
+  filter: brightness(1.25);
+}
+
+.speedo-card {
+  background-color: rgba(9, 13, 22, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  padding: 12px 16px;
+  width: 192px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+}
+
+/* Status Modal (Pause / Victory / Defeat) */
+#status-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background-color: rgba(9, 13, 22, 0.84);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  pointer-events: auto;
+}
+
+.status-modal-card {
+  width: 100%;
+  max-width: 460px;
+  background-color: rgba(13, 19, 33, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  padding: 22px 24px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.modal-stat-tile {
+  background-color: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.modal-btn-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal-secondary-btn {
+  width: 100%;
+  height: 42px;
+  background-color: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #f8fafc;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.modal-secondary-btn:hover {
+  background-color: rgba(51, 65, 85, 0.95);
+}
+
+/* ============================================================================
+   MOBILE LANDSCAPE & AUTO-ROTATED PORTRAIT-TO-LANDSCAPE RULES
+   Applies to 844x390 landscape phones AND 390x844 auto-rotated phones
+   ============================================================================ */
+@media (max-height: 520px), (max-width: 767px) {
+  body.portrait-rotated #title-screen,
+  #title-screen {
+    padding: 6px 12px 6px;
+  }
+
+  body.portrait-rotated .title-logo-wrap svg,
+  .title-logo-wrap svg {
+    width: 196px;
+    height: 34px;
+  }
+
+  body.portrait-rotated .title-top-actions,
+  .title-top-actions {
+    gap: 5px;
+  }
+
+  body.portrait-rotated .title-bottom-dock,
+  .title-bottom-dock {
+    padding: 6px 10px;
+    gap: 4px;
+    border-radius: 12px;
+  }
+
+  body.portrait-rotated .row-section-tag,
+  .row-section-tag {
+    display: none;
+  }
+
+  body.portrait-rotated #showroom-car-name,
+  #showroom-car-name {
+    font-size: 14px !important;
+  }
+
+  body.portrait-rotated #showroom-car-cat,
+  #showroom-car-cat {
+    font-size: 9.5px !important;
+  }
+
+  body.portrait-rotated #showroom-track-name,
+  #showroom-track-name {
+    font-size: 10px !important;
+  }
+
+  body.portrait-rotated .car-Roster-strip,
+  .car-Roster-strip {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  body.portrait-rotated .car-select-btn,
+  .car-select-btn {
+    padding: 3px 4px;
+    border-radius: 6px;
+    gap: 2px;
+  }
+
+  body.portrait-rotated .car-swatch,
+  .car-swatch {
+    width: 20px;
+    height: 4px;
+  }
+
+  body.portrait-rotated .car-btn-name,
+  .car-btn-name {
+    font-size: 9px;
+  }
+
+  body.portrait-rotated .map-roster-strip,
+  .map-roster-strip {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  body.portrait-rotated .map-select-btn,
+  .map-select-btn {
+    padding: 2px 4px;
+    border-radius: 6px;
+    gap: 4px;
+  }
+
+  body.portrait-rotated .map-mini-svg,
+  .map-mini-svg {
+    width: 22px;
+    height: 16px;
+  }
+
+  body.portrait-rotated .map-btn-name,
+  .map-btn-name {
+    font-size: 9px;
+  }
+
+  body.portrait-rotated .map-btn-diff,
+  .map-btn-diff {
+    font-size: 7px;
+  }
+
+  body.portrait-rotated .showroom-grid,
+  .showroom-grid {
+    grid-template-columns: 1.1fr 1fr 148px;
+    gap: 8px;
+  }
+
+  body.portrait-rotated .spec-bars-grid,
+  .spec-bars-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 10px;
+    row-gap: 4px;
+    margin-top: 0;
+  }
+
+  body.portrait-rotated .spec-bar-header,
+  .spec-bar-header {
+    font-size: 8.5px;
+    white-space: nowrap;
+    gap: 6px;
+  }
+
+  body.portrait-rotated .spec-bar-track,
+  .spec-bar-track {
+    height: 4px;
+  }
+
+  body.portrait-rotated .options-column,
+  .options-column {
+    gap: 4px;
+  }
+
+  body.portrait-rotated .segmented-label,
+  .segmented-label {
+    width: 48px;
+    font-size: 9px;
+  }
+
+  body.portrait-rotated .seg-btn,
+  .seg-btn {
+    font-size: 9.5px;
+    padding: 3px 4px;
+  }
+
+  body.portrait-rotated .start-cta-btn,
+  .start-cta-btn {
+    height: 40px;
+    font-size: 15px;
+    border-radius: 9px;
+  }
+
+  body.portrait-rotated .control-hint-line,
+  .control-hint-line {
+    display: none;
+  }
+
+  /* Compact Landscape Playing HUD */
+  body.portrait-rotated #playing-hud,
+  #playing-hud {
+    padding: 8px 12px;
+  }
+
+  body.portrait-rotated .hud-telemetry-card,
+  .hud-telemetry-card {
+    padding: 5px 10px;
+    gap: 10px;
+    border-radius: 10px;
+  }
+
+  body.portrait-rotated .hud-kicker,
+  .hud-kicker {
+    font-size: 8px;
+  }
+
+  body.portrait-rotated .hud-hero-val,
+  .hud-hero-val {
+    font-size: 18px;
+  }
+
+  body.portrait-rotated .hud-divider,
+  .hud-divider {
+    height: 22px;
+  }
+
+  body.portrait-rotated .util-icon-btn,
+  .util-icon-btn {
+    height: 28px;
+    min-width: 28px;
+    padding: 0 7px;
+    font-size: 9.5px;
+    border-radius: 7px;
+  }
+
+  body.portrait-rotated .minimap-frame,
+  .minimap-frame {
+    padding: 4px;
+    border-radius: 10px;
+  }
+
+  body.portrait-rotated .minimap-frame canvas,
+  .minimap-frame canvas {
+    width: 84px !important;
+    height: 84px !important;
+  }
+
+  body.portrait-rotated .wheel-touch-area,
+  .wheel-touch-area {
+    width: 96px;
+    height: 96px;
+  }
+
+  body.portrait-rotated .wheel-touch-area svg,
+  .wheel-touch-area svg {
+    width: 80px;
+    height: 80px;
+  }
+
+  body.portrait-rotated .joystick-base,
+  .joystick-base {
+    width: 94px;
+    height: 94px;
+  }
+
+  body.portrait-rotated .joystick-knob,
+  .joystick-knob {
+    width: 38px;
+    height: 38px;
+  }
+
+  body.portrait-rotated .steer-pad-btn,
+  .steer-pad-btn {
+    width: 54px;
+    height: 54px;
+    font-size: 9.5px;
+    border-radius: 12px;
+  }
+
+  body.portrait-rotated .tilt-steer-box,
+  .tilt-steer-box {
+    width: 128px;
+    padding: 8px 10px;
+  }
+
+  body.portrait-rotated .pedals-and-gauge-zone,
+  .pedals-and-gauge-zone {
+    gap: 8px;
+  }
+
+  body.portrait-rotated .action-pedals-grid,
+  .action-pedals-grid {
+    grid-template-columns: repeat(2, 54px);
+    gap: 5px;
+  }
+
+  body.portrait-rotated .pedal-btn,
+  .pedal-btn {
+    height: 44px;
+    font-size: 10.5px;
+    border-radius: 9px;
+  }
+
+  body.portrait-rotated .pedal-sub,
+  .pedal-sub {
+    font-size: 7.5px;
+  }
+
+  body.portrait-rotated .speedo-card,
+  .speedo-card {
+    width: 132px;
+    padding: 7px 10px;
+    gap: 4px;
+    border-radius: 12px;
+  }
+
+  body.portrait-rotated #hud-speed-val,
+  #hud-speed-val {
+    font-size: 22px !important;
+  }
+
+  body.portrait-rotated #hud-gear-val,
+  #hud-gear-val {
+    font-size: 18px !important;
+  }
+
+  /* Compact Status Modal in Landscape Mobile */
+  body.portrait-rotated .status-modal-card,
+  .status-modal-card {
+    max-width: 420px;
+    padding: 14px 18px;
+    gap: 10px;
+  }
+
+  body.portrait-rotated .modal-btn-row,
+  .modal-btn-row {
+    flex-direction: row;
+  }
+}
