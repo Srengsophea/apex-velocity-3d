@@ -44,10 +44,10 @@ test('CAR_CATALOG has 12 distinct car models with realistic specs', () => {
   }
 });
 
-test('TRACK_LIST has 10 distinct maps including long-road expressways, and creates valid closed circuits for each', () => {
-  assert.equal(TRACK_LIST.length, 10);
+test('TRACK_LIST has 11 distinct maps including countryside and long-road expressways, and creates valid closed circuits for each', () => {
+  assert.equal(TRACK_LIST.length, 11);
   const trackIds = new Set(TRACK_LIST.map((t) => t.id));
-  assert.equal(trackIds.size, 10);
+  assert.equal(trackIds.size, 11);
 
   for (const track of TRACK_LIST) {
     const { waypoints, totalLength } = buildTrackWaypoints(track.controlPoints);
@@ -253,7 +253,7 @@ test('computeGearAndRpm and calculateFinalRaceScore return valid integer metrics
   assert.ok(score1st > score4th);
 });
 
-test('computeSafeMountainRing guarantees all mountain footprints clear the road across all 10 tracks', () => {
+test('computeSafeMountainRing guarantees all mountain footprints clear the road across all 11 tracks', () => {
   for (const track of TRACK_LIST) {
     const { waypoints } = buildTrackWaypoints(track.controlPoints);
     const mountains = computeSafeMountainRing(waypoints, track.roadWidth, 44, 56);

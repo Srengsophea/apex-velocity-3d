@@ -613,6 +613,47 @@ export const TRACK_CATALOG: Record<TrackId, TrackSpec> = {
     roadWidth: 21.0,
     targetLapTimeSec: 54,
   },
+  countryside_meadows: {
+    id: 'countryside_meadows',
+    name: 'Verdant Meadowlands GP',
+    shortName: 'Countryside',
+    subtitle: 'Rolling Farmland Hills, Red Barns, Windmills & Amber Wheat Straights',
+    difficulty: 'MEDIUM',
+    envKind: 'countryside',
+    controlPoints: [
+      [0, -180],
+      [0, 0],
+      [0, 240],
+      [140, 440],
+      [340, 520],
+      [560, 460],
+      [620, 240],
+      [620, -120],
+      [600, -360],
+      [480, -560],
+      [280, -640],
+      [80, -580],
+      [-120, -480],
+      [-180, -340],
+      [-120, -220],
+    ],
+    skyTopColor: 0x0284c7, // Crisp summer blue sky
+    skyHorizonColor: 0xbae6fd, // Soft warm atmospheric horizon
+    sunDiscColor: 0xfffbeb,
+    fogColor: 0xdbeafe,
+    fogDensity: 0.00078,
+    sunColor: 0xfff7ed,
+    sunIntensity: 2.85,
+    hemiSkyColor: 0xe0f2fe,
+    hemiGroundColor: 0x14532d,
+    hemiIntensity: 1.25,
+    groundColor: 0x15803d, // Lush emerald pasture
+    infieldColor: 0xd97706, // Amber golden wheat field
+    foliageColors: [0x15803d, 0x166534, 0xca8a04],
+    archAccentColor: 0x22c55e, // Emerald green
+    roadWidth: 21.5,
+    targetLapTimeSec: 56,
+  },
 };
 
 export const TRACK_LIST: TrackSpec[] = [
@@ -626,6 +667,7 @@ export const TRACK_LIST: TrackSpec[] = [
   TRACK_CATALOG.trans_sahara_speedway,
   TRACK_CATALOG.tokyo_wangan_express,
   TRACK_CATALOG.nordic_skyline_pass,
+  TRACK_CATALOG.countryside_meadows,
 ];
 
 export const GAME_MODE_CATALOG: Record<GameModeId, GameModeSpec> = {

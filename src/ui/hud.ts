@@ -229,7 +229,7 @@ export class GameShellUI {
             <text x="8" y="21" fill="#090D16" font-family="Chakra Petch, sans-serif" font-weight="700" font-size="11" letter-spacing="2">WORLD STREET SERIES</text>
             <text x="6" y="60" fill="#F8FAFC" font-family="Chakra Petch, sans-serif" font-style="italic" font-weight="700" font-size="42" letter-spacing="1">APEX VELOCITY</text>
             <text x="334" y="60" fill="#F59E0B" font-family="Chakra Petch, sans-serif" font-style="italic" font-weight="700" font-size="38">3D</text>
-            <text x="8" y="79" fill="#94A3B8" font-family="Plus Jakarta Sans, sans-serif" font-weight="600" font-size="13" letter-spacing="3">10 CIRCUITS · 12 SUPERCARS · LANDSCAPE PRO</text>
+            <text x="8" y="79" fill="#94A3B8" font-family="Plus Jakarta Sans, sans-serif" font-weight="600" font-size="13" letter-spacing="3">11 CIRCUITS · 12 SUPERCARS · LANDSCAPE PRO</text>
           </svg>
         </div>
         <div class="interactive title-top-actions">
@@ -270,9 +270,9 @@ export class GameShellUI {
           <div id="car-roster-strip" class="car-roster-strip" role="group" aria-label="Select Car Model"></div>
         </div>
 
-        <!-- 10-Map Selection Strip -->
+        <!-- 11-Map Selection Strip -->
         <div class="selector-section">
-          <span class="row-section-tag">CIRCUITS (10 EXPANSIVE MAPS)</span>
+          <span class="row-section-tag">CIRCUITS (11 EXPANSIVE MAPS)</span>
           <div id="map-roster-strip" class="map-roster-strip" role="group" aria-label="Select Circuit Map"></div>
         </div>
 

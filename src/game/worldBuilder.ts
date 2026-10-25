@@ -48,6 +48,7 @@ function createSkyDomeTexture(spec: TrackSpec): THREE.CanvasTexture {
     const isStormy = spec.id === 'harbor_docks';
     const isSunset = spec.id === 'sunset_coast';
     const isDesert = spec.id === 'desert_dunes' || spec.id === 'trans_sahara_speedway';
+    const isCountryside = spec.envKind === 'countryside';
 
     // 1. Photorealistic Atmospheric Zenith-to-Horizon Gradient
     const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
@@ -69,6 +70,16 @@ function createSkyDomeTexture(spec: TrackSpec): THREE.CanvasTexture {
       skyGrad.addColorStop(0.50, '#162032');
       skyGrad.addColorStop(0.55, '#0f172a');
       skyGrad.addColorStop(1, '#020617');
+    } else if (isCountryside) {
+      // Crisp pastoral summer sky: deep azure zenith -> radiant cerulean -> sunlit golden horizon
+      skyGrad.addColorStop(0, '#0284c7');
+      skyGrad.addColorStop(0.22, '#38bdf8');
+      skyGrad.addColorStop(0.42, '#7dd3fc');
+      skyGrad.addColorStop(0.48, '#fed7aa');
+      skyGrad.addColorStop(0.50, '#fef08a');
+      skyGrad.addColorStop(0.55, '#fde68a');
+      skyGrad.addColorStop(0.70, '#15803d');
+      skyGrad.addColorStop(1, '#14532d');
     } else if (isDesert) {
       // Crisp high-altitude desert sky: deep cerulean -> bright azure -> pale sand dust horizon
       skyGrad.addColorStop(0, '#0284c7');
@@ -356,6 +367,7 @@ function createTerrainGrassTexture(
     const isNight = spec.id === 'neon_night';
     const isHarbor = spec.id === 'harbor_docks';
     const isCoastal = spec.envKind === 'coastal';
+    const isCountryside = spec.envKind === 'countryside';
 
     const baseHex = isDesert
       ? '#d97706' // Natural warm golden desert sand
@@ -367,7 +379,9 @@ function createTerrainGrassTexture(
             ? '#1e293b' // Dark industrial dock concrete
             : isCoastal
               ? '#15803d' // Lush coastal turf
-              : '#15803d';
+              : isCountryside
+                ? '#15803d' // Lush emerald countryside meadow
+                : '#15803d';
     ctx.fillStyle = baseHex;
     ctx.fillRect(0, 0, 1024, 1024);
 
@@ -402,6 +416,13 @@ function createTerrainGrassTexture(
           i % 2 === 0
             ? 'rgba(22, 101, 52, 0.35)'
             : 'rgba(253, 230, 138, 0.22)',
+        );
+      } else if (isCountryside) {
+        g.addColorStop(
+          0,
+          i % 2 === 0
+            ? 'rgba(234, 179, 8, 0.35)' // Golden harvest wheat field patch
+            : 'rgba(22, 101, 52, 0.38)', // Deep meadow clover patch
         );
       } else {
         g.addColorStop(
@@ -1390,6 +1411,293 @@ function createContainerTexture(): THREE.CanvasTexture {
   return tex;
 }
 
+function createRusticBarnTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    // Rich rustic crimson red barnwood base
+    ctx.fillStyle = '#991b1b';
+    ctx.fillRect(0, 0, 512, 512);
+
+    // Vertical barnwood planks with woodgrain & nailheads
+    for (let x = 0; x < 512; x += 16) {
+      ctx.fillStyle = (x / 16) % 2 === 0 ? 'rgba(0, 0, 0, 0.22)' : 'rgba(255, 255, 255, 0.08)';
+      ctx.fillRect(x, 0, 2, 512);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.12)';
+      ctx.fillRect(x + 2, 0, 14, 512);
+    }
+
+    // Classic white wooden cross-buck X-braces & eaves borders
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 0, 512, 18);
+    ctx.fillRect(0, 494, 512, 18);
+    ctx.fillRect(0, 0, 18, 512);
+    ctx.fillRect(494, 0, 18, 512);
+
+    // Barn loft arched window
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(206, 60, 100, 110);
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(202, 56, 108, 6);
+    ctx.fillRect(253, 60, 6, 110);
+    ctx.fillRect(206, 112, 100, 6);
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function createWindmillTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    // Weathered Cotswold stone masonry
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillRect(0, 0, 512, 512);
+
+    // Ashlar stone blocks & mortar lines
+    for (let y = 0; y < 512; y += 24) {
+      const row = Math.floor(y / 24);
+      const xOffset = (row % 2) * 24;
+      ctx.fillStyle = 'rgba(71, 85, 105, 0.35)';
+      ctx.fillRect(0, y, 512, 2);
+      for (let x = xOffset; x < 512; x += 48) {
+        ctx.fillRect(x, y, 2, 24);
+        if ((x + y) % 5 === 0) {
+          ctx.fillStyle = 'rgba(100, 116, 139, 0.15)';
+          ctx.fillRect(x + 2, y + 2, 44, 20);
+        }
+      }
+    }
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function createHayBaleTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    // Rich golden harvest straw base
+    ctx.fillStyle = '#eab308';
+    ctx.fillRect(0, 0, 256, 256);
+
+    // Concentric straw bale wrapping rings & twine ties
+    ctx.strokeStyle = '#ca8a04';
+    ctx.lineWidth = 3;
+    for (let r = 16; r < 128; r += 14) {
+      ctx.beginPath();
+      ctx.arc(128, 128, r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    // Cross twine strings
+    ctx.strokeStyle = '#713f12';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, 128);
+    ctx.lineTo(256, 128);
+    ctx.moveTo(128, 0);
+    ctx.lineTo(128, 256);
+    ctx.stroke();
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function buildRusticRedBarnGeometry(): THREE.BufferGeometry {
+  const body = new THREE.BoxGeometry(14, 8, 22);
+  body.translate(0, 4, 0);
+
+  const lowerRoofL = new THREE.BoxGeometry(1.2, 5.2, 23.2);
+  lowerRoofL.rotateZ(Math.PI * 0.32);
+  lowerRoofL.translate(-5.8, 9.8, 0);
+  const lowerRoofR = new THREE.BoxGeometry(1.2, 5.2, 23.2);
+  lowerRoofR.rotateZ(-Math.PI * 0.32);
+  lowerRoofR.translate(5.8, 9.8, 0);
+
+  const upperRoofL = new THREE.BoxGeometry(1.0, 4.8, 23.2);
+  upperRoofL.rotateZ(Math.PI * 0.14);
+  upperRoofL.translate(-2.2, 12.6, 0);
+  const upperRoofR = new THREE.BoxGeometry(1.0, 4.8, 23.2);
+  upperRoofR.rotateZ(-Math.PI * 0.14);
+  upperRoofR.translate(2.2, 12.6, 0);
+
+  const frontGable = new THREE.CylinderGeometry(0.01, 7.0, 5.5, 4);
+  frontGable.rotateY(Math.PI * 0.25);
+  frontGable.translate(0, 10.5, 11);
+  const backGable = new THREE.CylinderGeometry(0.01, 7.0, 5.5, 4);
+  backGable.rotateY(Math.PI * 0.25);
+  backGable.translate(0, 10.5, -11);
+
+  const siloTower = new THREE.CylinderGeometry(3.2, 3.2, 15, 20);
+  siloTower.translate(10.5, 7.5, 4);
+  const siloDome = new THREE.SphereGeometry(3.2, 20, 10, 0, Math.PI * 2, 0, Math.PI * 0.5);
+  siloDome.translate(10.5, 15, 4);
+
+  const doorFrame = new THREE.BoxGeometry(4.8, 5.2, 0.4);
+  doorFrame.translate(0, 2.6, 11.2);
+
+  const merged = BufferGeometryUtils.mergeGeometries([
+    body.toNonIndexed(),
+    lowerRoofL.toNonIndexed(),
+    lowerRoofR.toNonIndexed(),
+    upperRoofL.toNonIndexed(),
+    upperRoofR.toNonIndexed(),
+    frontGable.toNonIndexed(),
+    backGable.toNonIndexed(),
+    siloTower.toNonIndexed(),
+    siloDome.toNonIndexed(),
+    doorFrame.toNonIndexed(),
+  ], false);
+  merged.computeVertexNormals();
+  merged.computeBoundingSphere();
+  return merged;
+}
+
+function buildDutchWindmillGeometry(): THREE.BufferGeometry {
+  const tower = new THREE.CylinderGeometry(3.2, 4.8, 16, 8);
+  tower.translate(0, 8, 0);
+
+  const cap = new THREE.ConeGeometry(3.8, 4.2, 8);
+  cap.translate(0, 18.1, 0);
+
+  const hub = new THREE.CylinderGeometry(0.7, 0.8, 1.6, 10);
+  hub.rotateX(Math.PI * 0.5);
+  hub.translate(0, 17.5, 3.2);
+
+  const sailGeos: THREE.BufferGeometry[] = [];
+  for (let i = 0; i < 4; i++) {
+    const angle = (i * Math.PI) / 2;
+    const spar = new THREE.BoxGeometry(0.32, 12, 0.32);
+    spar.translate(0, 6, 0);
+    const canvasBlade = new THREE.BoxGeometry(2.2, 9.5, 0.08);
+    canvasBlade.rotateY(0.2);
+    canvasBlade.translate(1.2, 6.5, 0);
+    const fullSail = BufferGeometryUtils.mergeGeometries([
+      spar.toNonIndexed(),
+      canvasBlade.toNonIndexed()
+    ], false);
+    fullSail.rotateZ(angle);
+    fullSail.translate(0, 17.5, 3.5);
+    sailGeos.push(fullSail);
+  }
+
+  const merged = BufferGeometryUtils.mergeGeometries([
+    tower.toNonIndexed(),
+    cap.toNonIndexed(),
+    hub.toNonIndexed(),
+    ...sailGeos.map(s => s.toNonIndexed()),
+  ], false);
+  merged.computeVertexNormals();
+  merged.computeBoundingSphere();
+  return merged;
+}
+
+function buildCountryCottageGeometry(): THREE.BufferGeometry {
+  const body = new THREE.BoxGeometry(10, 5.5, 12);
+  body.translate(0, 2.75, 0);
+
+  const roofL = new THREE.BoxGeometry(0.8, 5.8, 13.2);
+  roofL.rotateZ(Math.PI * 0.24);
+  roofL.translate(-3.6, 7.2, 0);
+  const roofR = new THREE.BoxGeometry(0.8, 5.8, 13.2);
+  roofR.rotateZ(-Math.PI * 0.24);
+  roofR.translate(3.6, 7.2, 0);
+
+  const chimney = new THREE.BoxGeometry(1.4, 4.2, 1.4);
+  chimney.translate(3.2, 8.5, 3.5);
+
+  const porch = new THREE.BoxGeometry(4.2, 0.4, 2.2);
+  porch.translate(0, 3.2, 6.8);
+
+  const merged = BufferGeometryUtils.mergeGeometries([
+    body.toNonIndexed(),
+    roofL.toNonIndexed(),
+    roofR.toNonIndexed(),
+    chimney.toNonIndexed(),
+    porch.toNonIndexed(),
+  ], false);
+  merged.computeVertexNormals();
+  merged.computeBoundingSphere();
+  return merged;
+}
+
+function buildHayBaleGroupGeometry(): THREE.BufferGeometry {
+  const bale1 = new THREE.CylinderGeometry(1.1, 1.1, 2.4, 14);
+  bale1.rotateZ(Math.PI * 0.5);
+  bale1.translate(-1.4, 1.1, 0);
+
+  const bale2 = new THREE.CylinderGeometry(1.1, 1.1, 2.4, 14);
+  bale2.rotateZ(Math.PI * 0.5);
+  bale2.translate(1.4, 1.1, 0.3);
+
+  const bale3 = new THREE.CylinderGeometry(1.05, 1.05, 2.4, 14);
+  bale3.rotateZ(Math.PI * 0.5);
+  bale3.translate(0, 2.9, 0.15);
+
+  const merged = BufferGeometryUtils.mergeGeometries([
+    bale1.toNonIndexed(),
+    bale2.toNonIndexed(),
+    bale3.toNonIndexed(),
+  ], false);
+  merged.computeVertexNormals();
+  merged.computeBoundingSphere();
+  return merged;
+}
+
+function buildRusticSplitRailFenceGeometry(): THREE.BufferGeometry {
+  const post1 = new THREE.BoxGeometry(0.22, 1.35, 0.22);
+  post1.translate(-2.0, 0.67, 0);
+  const post2 = new THREE.BoxGeometry(0.22, 1.35, 0.22);
+  post2.translate(2.0, 0.67, 0);
+
+  const rail1 = new THREE.BoxGeometry(4.3, 0.14, 0.12);
+  rail1.translate(0, 0.52, 0);
+  const rail2 = new THREE.BoxGeometry(4.3, 0.14, 0.12);
+  rail2.translate(0, 1.05, 0);
+
+  const merged = BufferGeometryUtils.mergeGeometries([
+    post1.toNonIndexed(),
+    post2.toNonIndexed(),
+    rail1.toNonIndexed(),
+    rail2.toNonIndexed(),
+  ], false);
+  merged.computeVertexNormals();
+  merged.computeBoundingSphere();
+  return merged;
+}
+
+function buildRollingPastoralHillGeometry(
+  baseRadius = 56,
+  height = 72,
+  radialSegs = 48,
+  heightSegs = 24,
+): THREE.BufferGeometry {
+  const geo = new THREE.ConeGeometry(baseRadius, height, radialSegs, heightSegs, false);
+  geo.translate(0, height * 0.5, 0);
+  const pos = geo.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const vx = pos.getX(i);
+    const vy = pos.getY(i);
+    const vz = pos.getZ(i);
+    const elev = Math.max(0, Math.min(1, vy / height));
+    const angle = Math.atan2(vz, vx);
+    const swell = 1 + Math.sin(angle * 3) * 0.14 + Math.cos(angle * 5) * 0.08;
+    pos.setXYZ(i, vx * swell, vy * (0.85 + (1 - elev) * 0.15), vz * swell);
+  }
+  const creased = BufferGeometryUtils.toCreasedNormals(geo, THREE.MathUtils.degToRad(58));
+  creased.computeBoundingSphere();
+  return creased;
+}
+
 function buildChamferedTowerGeometry(): THREE.BufferGeometry {
   const shape = new THREE.Shape();
   const r = 0.5;
@@ -1638,6 +1946,9 @@ export function buildRacingWorld(
   const chevronTex = createChevronSignTexture();
   const barkTex = createBarkTexture();
   const foliageTex = createFoliageLeafTexture(maxAnisotropy);
+  const barnTex = createRusticBarnTexture();
+  const windmillTex = createWindmillTexture();
+  const hayBaleTex = createHayBaleTexture();
 
   const pineTreeGeos = buildDetailedTreeGeometries('pine');
   const oakTreeGeos = buildDetailedTreeGeometries('oak');
@@ -1647,6 +1958,12 @@ export function buildRacingWorld(
   const craggyMountainGeo = buildRealisticMountainGeometry(56, 105, 48, 24);
   const craggyPeakGeo = buildRealisticMountainGeometry(0.68, 1.0, 28, 14);
   const sandstoneMesaGeo = buildTerracedSandstoneMesaGeometry(0.76, 1.0);
+  const rollingPastoralHillGeo = buildRollingPastoralHillGeometry(56, 75, 48, 24);
+  const rusticBarnGeo = buildRusticRedBarnGeometry();
+  const dutchWindmillGeo = buildDutchWindmillGeometry();
+  const countryCottageGeo = buildCountryCottageGeometry();
+  const hayBaleGroupGeo = buildHayBaleGroupGeometry();
+  const splitRailFenceGeo = buildRusticSplitRailFenceGeometry();
 
   let trackContentGroup = new THREE.Group();
   root.add(trackContentGroup);
@@ -1693,10 +2010,11 @@ export function buildRacingWorld(
     rimLight.color.setHex(spec.hemiSkyColor);
     rimLight.intensity = isNight ? 0.2 : 0.38;
 
-    // 2. High-Resolution Textured Grass / Terrain Ground Plane (1800x1800)
+    // 2. High-Resolution Textured Grass / Terrain Ground Plane (dynamically scaled for massive circuits)
     const grassTex = createTerrainGrassTexture(spec, maxAnisotropy);
+    const groundDim = Math.max(2200, totalLength * 0.95);
     const groundMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(1800, 1800),
+      new THREE.PlaneGeometry(groundDim, groundDim),
       new THREE.MeshStandardMaterial({
         color: 0xffffff,
         map: grassTex,
@@ -1752,6 +2070,7 @@ export function buildRacingWorld(
     const isPureNight = spec.id === 'neon_night';
     const isHarbor = spec.id === 'harbor_docks';
     const isDesert = spec.id === 'desert_dunes';
+    const isCountryside = spec.envKind === 'countryside';
 
     // Circuit-tailored curb color palettes
     const primaryCurbColor = isPureNight
@@ -1760,7 +2079,9 @@ export function buildRacingWorld(
         ? 0xeab308 // Industrial Hazard Yellow
         : isDesert
           ? 0xb91c1c // Sedona Red Sandstone
-          : 0xdc2626; // FIA Red
+          : isCountryside
+            ? 0x15803d // British Racing Green / Emerald
+            : 0xdc2626; // FIA Red
 
     const secondaryCurbColor = isPureNight
       ? 0xd946ef // Electric Magenta
@@ -1768,7 +2089,9 @@ export function buildRacingWorld(
         ? 0x0f172a // Charcoal Black
         : isDesert
           ? 0xfef3c7 // Warm Desert Bone
-          : 0xf8fafc; // Clean White
+          : isCountryside
+            ? 0xfef08a // Warm Golden Straw
+            : 0xf8fafc; // Clean White
 
     const curbMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
@@ -2189,7 +2512,206 @@ export function buildRacingWorld(
     const boxTowerGeo = new THREE.BoxGeometry(1, 1, 1);
     boxTowerGeo.translate(0, 0.5, 0);
 
-    if (isNaturalMap) {
+    if (isCountryside) {
+      // 1. Classic Rustic Red Barns + Tall Cylindrical Grain Silos
+      const barnCoords: Array<{ x: number; z: number; rotY: number }> = [];
+      for (let i = 0; i < waypoints.length; i += 18) {
+        const wp = waypoints[i];
+        const side = (i / 18) % 2 === 0 ? 1 : -1;
+        const distOut = spec.roadWidth * 0.54 + 28 + ((i * 7) % 16);
+        const bx = wp.x + wp.nx * side * distOut;
+        const bz = wp.z + wp.nz * side * distOut;
+        if (minDistanceToWaypoints(bx, bz, waypoints) >= spec.roadWidth * 0.55 + 22) {
+          const rotY = Math.atan2(wp.tx, wp.tz) + (side > 0 ? -0.4 : 0.4);
+          barnCoords.push({ x: bx, z: bz, rotY });
+        }
+      }
+      if (barnCoords.length > 0) {
+        const barnMat = new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          map: barnTex,
+          roughness: 0.72,
+          metalness: 0.12,
+        });
+        const barnInst = new THREE.InstancedMesh(
+          rusticBarnGeo,
+          barnMat,
+          barnCoords.length,
+        );
+        barnInst.castShadow = !isSoftwareGl;
+        barnInst.receiveShadow = true;
+        for (let k = 0; k < barnCoords.length; k++) {
+          const bc = barnCoords[k];
+          dummy.position.set(bc.x, 0, bc.z);
+          dummy.rotation.set(0, bc.rotY, 0);
+          dummy.scale.set(1.0, 1.0, 1.0);
+          dummy.updateMatrix();
+          barnInst.setMatrixAt(k, dummy.matrix);
+        }
+        barnInst.instanceMatrix.needsUpdate = true;
+        barnInst.computeBoundingSphere();
+        trackContentGroup.add(barnInst);
+      }
+
+      // 2. Dutch Windmills with 4-Vane Sails
+      const windmillCoords: Array<{ x: number; z: number; rotY: number }> = [];
+      for (let i = 8; i < waypoints.length; i += 26) {
+        const wp = waypoints[i];
+        const side = (i / 26) % 2 === 0 ? -1 : 1;
+        const distOut = spec.roadWidth * 0.54 + 36 + ((i * 11) % 18);
+        const wx = wp.x + wp.nx * side * distOut;
+        const wz = wp.z + wp.nz * side * distOut;
+        if (minDistanceToWaypoints(wx, wz, waypoints) >= spec.roadWidth * 0.55 + 26) {
+          const rotY = Math.atan2(wp.tx, wp.tz) + 0.35;
+          windmillCoords.push({ x: wx, z: wz, rotY });
+        }
+      }
+      if (windmillCoords.length > 0) {
+        const windmillMat = new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          map: windmillTex,
+          roughness: 0.84,
+          metalness: 0.08,
+        });
+        const windmillInst = new THREE.InstancedMesh(
+          dutchWindmillGeo,
+          windmillMat,
+          windmillCoords.length,
+        );
+        windmillInst.castShadow = !isSoftwareGl;
+        windmillInst.receiveShadow = true;
+        for (let k = 0; k < windmillCoords.length; k++) {
+          const wc = windmillCoords[k];
+          dummy.position.set(wc.x, 0, wc.z);
+          dummy.rotation.set(0, wc.rotY, 0);
+          dummy.scale.set(1.15, 1.15, 1.15);
+          dummy.updateMatrix();
+          windmillInst.setMatrixAt(k, dummy.matrix);
+        }
+        windmillInst.instanceMatrix.needsUpdate = true;
+        windmillInst.computeBoundingSphere();
+        trackContentGroup.add(windmillInst);
+      }
+
+      // 3. Country Farmhouse Stone Cottages
+      const cottageCoords: Array<{ x: number; z: number; rotY: number }> = [];
+      for (let i = 4; i < waypoints.length; i += 20) {
+        const wp = waypoints[i];
+        const side = (i / 20) % 2 === 0 ? 1 : -1;
+        const distOut = spec.roadWidth * 0.54 + 22 + ((i * 5) % 14);
+        const cx = wp.x + wp.nx * side * distOut;
+        const cz = wp.z + wp.nz * side * distOut;
+        if (minDistanceToWaypoints(cx, cz, waypoints) >= spec.roadWidth * 0.55 + 18) {
+          const rotY = Math.atan2(wp.tx, wp.tz) + (side > 0 ? 0.2 : -0.2);
+          cottageCoords.push({ x: cx, z: cz, rotY });
+        }
+      }
+      if (cottageCoords.length > 0) {
+        const cottageMat = new THREE.MeshStandardMaterial({
+          color: 0xfef3c7,
+          roughness: 0.85,
+          metalness: 0.05,
+        });
+        const cottageInst = new THREE.InstancedMesh(
+          countryCottageGeo,
+          cottageMat,
+          cottageCoords.length,
+        );
+        cottageInst.castShadow = !isSoftwareGl;
+        cottageInst.receiveShadow = true;
+        for (let k = 0; k < cottageCoords.length; k++) {
+          const cc = cottageCoords[k];
+          dummy.position.set(cc.x, 0, cc.z);
+          dummy.rotation.set(0, cc.rotY, 0);
+          dummy.scale.set(1.0, 1.0, 1.0);
+          dummy.updateMatrix();
+          cottageInst.setMatrixAt(k, dummy.matrix);
+        }
+        cottageInst.instanceMatrix.needsUpdate = true;
+        cottageInst.computeBoundingSphere();
+        trackContentGroup.add(cottageInst);
+      }
+
+      // 4. Golden Cylindrical Hay Bale Groups along Fields and Straights
+      const hayBaleCoords: Array<{ x: number; z: number; rotY: number }> = [];
+      for (let i = 0; i < waypoints.length; i += 7) {
+        const wp = waypoints[i];
+        const side = (i / 7) % 2 === 0 ? -1 : 1;
+        const distOut = spec.roadWidth * 0.54 + 8.5 + ((i * 3) % 9);
+        const hx = wp.x + wp.nx * side * distOut;
+        const hz = wp.z + wp.nz * side * distOut;
+        if (minDistanceToWaypoints(hx, hz, waypoints) >= spec.roadWidth * 0.55 + 6.0) {
+          const rotY = Math.atan2(wp.tx, wp.tz) + (i * 0.4);
+          hayBaleCoords.push({ x: hx, z: hz, rotY });
+        }
+      }
+      if (hayBaleCoords.length > 0) {
+        const hayBaleMat = new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          map: hayBaleTex,
+          roughness: 0.94,
+          metalness: 0.02,
+        });
+        const hayBaleInst = new THREE.InstancedMesh(
+          hayBaleGroupGeo,
+          hayBaleMat,
+          hayBaleCoords.length,
+        );
+        hayBaleInst.castShadow = !isSoftwareGl;
+        hayBaleInst.receiveShadow = true;
+        for (let k = 0; k < hayBaleCoords.length; k++) {
+          const hc = hayBaleCoords[k];
+          dummy.position.set(hc.x, 0, hc.z);
+          dummy.rotation.set(0, hc.rotY, 0);
+          dummy.scale.set(1.0, 1.0, 1.0);
+          dummy.updateMatrix();
+          hayBaleInst.setMatrixAt(k, dummy.matrix);
+        }
+        hayBaleInst.instanceMatrix.needsUpdate = true;
+        hayBaleInst.computeBoundingSphere();
+        trackContentGroup.add(hayBaleInst);
+      }
+
+      // 5. Split-Rail Wooden Fences along Roadside Verges
+      const fenceCoords: Array<{ x: number; z: number; rotY: number }> = [];
+      const fenceDist = spec.roadWidth * 0.54 + 4.2;
+      for (let i = 0; i < waypoints.length; i += 2) {
+        const wp = waypoints[i];
+        for (const side of [-1, 1]) {
+          if ((i + (side > 0 ? 1 : 0)) % 6 !== 0) {
+            const fx = wp.x + wp.nx * side * fenceDist;
+            const fz = wp.z + wp.nz * side * fenceDist;
+            const rotY = Math.atan2(wp.tx, wp.tz);
+            fenceCoords.push({ x: fx, z: fz, rotY });
+          }
+        }
+      }
+      if (fenceCoords.length > 0) {
+        const fenceMat = new THREE.MeshStandardMaterial({
+          color: 0x854d0e, // Rustic cedar timber
+          roughness: 0.88,
+          metalness: 0.05,
+        });
+        const fenceInst = new THREE.InstancedMesh(
+          splitRailFenceGeo,
+          fenceMat,
+          fenceCoords.length,
+        );
+        fenceInst.castShadow = !isSoftwareGl;
+        fenceInst.receiveShadow = true;
+        for (let k = 0; k < fenceCoords.length; k++) {
+          const fc = fenceCoords[k];
+          dummy.position.set(fc.x, 0, fc.z);
+          dummy.rotation.set(0, fc.rotY, 0);
+          dummy.scale.set(1.0, 1.0, 1.0);
+          dummy.updateMatrix();
+          fenceInst.setMatrixAt(k, dummy.matrix);
+        }
+        fenceInst.instanceMatrix.needsUpdate = true;
+        fenceInst.computeBoundingSphere();
+        trackContentGroup.add(fenceInst);
+      }
+    } else if (isNaturalMap) {
       const towerGeo =
         spec.envKind === 'desert' ? sandstoneMesaGeo : craggyPeakGeo;
       const towerInst = new THREE.InstancedMesh(towerGeo, buildingMat, bCount);
@@ -2448,9 +2970,17 @@ export function buildRacingWorld(
 
     const isPalmMap =
       spec.envKind === 'coastal' || spec.envKind === 'desert';
-    const primaryGeos = isPalmMap ? palmTreeGeos : pineTreeGeos;
+    const primaryGeos = isPalmMap
+      ? palmTreeGeos
+      : isCountryside
+        ? oakTreeGeos
+        : pineTreeGeos;
     const secondaryGeos =
-      spec.envKind === 'desert' ? desertFloraGeos : oakTreeGeos;
+      spec.envKind === 'desert'
+        ? desertFloraGeos
+        : isCountryside
+          ? oakTreeGeos
+          : oakTreeGeos;
 
     const trunkMat = new THREE.MeshStandardMaterial({
       color: isPalmMap ? 0x9c7248 : 0x7c583c,
@@ -2644,15 +3174,17 @@ export function buildRacingWorld(
       56,
     );
     const mountainMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      map: rockTex,
-      roughness: 0.86,
-      metalness: 0.06,
+      color: spec.envKind === 'countryside' ? 0x166534 : 0xffffff,
+      map: spec.envKind === 'countryside' ? grassTex : rockTex,
+      roughness: spec.envKind === 'countryside' ? 0.92 : 0.86,
+      metalness: 0.04,
     });
     const horizonGeo =
       spec.envKind === 'desert'
         ? buildTerracedSandstoneMesaGeometry(56, 96)
-        : craggyMountainGeo;
+        : spec.envKind === 'countryside'
+          ? rollingPastoralHillGeo
+          : craggyMountainGeo;
     const mountainInst = new THREE.InstancedMesh(
       horizonGeo,
       mountainMat,

@@ -34,7 +34,8 @@ export type TrackId =
   | 'continental_highway'
   | 'trans_sahara_speedway'
   | 'tokyo_wangan_express'
-  | 'nordic_skyline_pass';
+  | 'nordic_skyline_pass'
+  | 'countryside_meadows';
 
 export type TrackEnvironmentKind =
   | 'metro'
@@ -42,7 +43,8 @@ export type TrackEnvironmentKind =
   | 'cyber'
   | 'alpine'
   | 'desert'
-  | 'harbor';
+  | 'harbor'
+  | 'countryside';
 
 export interface TrackSpec {
   id: TrackId;
